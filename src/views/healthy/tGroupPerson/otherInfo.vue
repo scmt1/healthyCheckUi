@@ -59,14 +59,14 @@
                                 </FormItem>
                             </Col>
                             <Col span="8">
-                                <FormItem label="文化程度">
+                                <FormItem label="教育程度">
                                     <Select v-model="personInfo.education" placeholder="请选择" clearable transfer>
                                         <Option v-for="(item, i) in personInfoPriority" :key="i" :value="item.value">{{ item.title }}</Option>
                                     </Select>
                                 </FormItem>
                             </Col>
                             <Col span="8">
-                                <FormItem label="家庭地址" prop="familyAddress">
+                                <FormItem label="家庭(通讯)地址" prop="familyAddress">
                                     <Input type="text" :maxlength=50 v-model="personInfo.familyAddress" placeholder="请输入家庭地址"/>
                                 </FormItem>
                             </Col>
@@ -310,24 +310,31 @@
                         <Row>
                             <FormItem label="烟酒史">
                                 <Row :gutter="15" style="margin-bottom: 24px;">
-                                    <Col style="width: 225px;">
+                                    <Col style="width: 500px;">
                                         <RadioGroup v-model="personInfo.smokeState">
-                                            <Radio label="不吸烟"></Radio>
-                                            <Radio label="偶尔吸"></Radio>
-                                            <Radio label="经常吸"></Radio>
+                                            <Radio label="1">现在每天吸</Radio>
+                                            <Radio label="2">现在吸,但不是每天吸</Radio>
+                                            <Radio label="3">过去吸,现在不吸</Radio>
+                                            <Radio label="4">从不吸</Radio>
                                         </RadioGroup>
                                     </Col>
-                                    <Col span="5">
+                                    <Col span="4">
                                         <Input v-model="personInfo.packageEveryDay" type="number" @input="existChildChange('packageEveryDay',$event)">
                                             <span slot="append">支每天</span>
                                         </Input>
                                     </Col>
-                                    <Col span="5">
-                                        <Input v-model="personInfo.smokeYear" type="number" @input="existChildChange('smokeYear',$event)">
-                                            <span slot="prepend">共</span>
-                                            <span slot="append">年</span>
-                                        </Input>
-                                    </Col>
+                                  <Col span="4">
+                                    <Input v-model="personInfo.smokeYear" type="number" @input="existChildChange('smokeYear',$event)">
+                                      <span slot="prepend">共</span>
+                                      <span slot="append">年</span>
+                                    </Input>
+                                  </Col>
+                                  <Col span="4">
+                                    <Input v-model="personInfo.smokeMoon" type="number"  @input="existChildChange('smokeMoon',$event)">
+                                      <span slot="prepend">共</span>
+                                      <span slot="append">月</span>
+                                    </Input>
+                                  </Col>
                                     <Col span="5" v-if="this.physicalType == '放射体检' || (personInfo.hazardFactors && (personInfo.hazardFactors.indexOf('160002')>-1 || personInfo.hazardFactors.indexOf('160501')>-1 || personInfo.hazardFactors.indexOf('160502')>-1  || personInfo.hazardFactors.indexOf('160503')>-1  || personInfo.hazardFactors.indexOf('160504')>-1 || personInfo.hazardFactors.indexOf('160506')>-1 || personInfo.hazardFactors.indexOf('160507')>-1 || personInfo.hazardFactors.indexOf('160999')>-1))">
                                         <Input v-model="personInfo.quitSomking" type="number" @input="existChildChange('quitSomking',$event)">
                                             <span slot="prepend">戒烟</span>
@@ -506,13 +513,13 @@
                         </Col>
                     </Row>
                 </Col>
-                <Col span="5" v-if="personInfo.physicalType == '从业体检'">
+                <!-- <Col span="5" v-if="personInfo.physicalType == '从业体检'">
                     <FormItem  label="民族">
                         <Select v-model="personInfo.nation" placeholder="请选择" transfer>
                             <Option v-for="(item,i) in nationArr" :value="item.value">{{item.title}}</Option>
                         </Select>
                     </FormItem>
-                </Col>
+                </Col> -->
                 <Col span="8" style="text-align: center;">
                     <div>
                         <Button type="primary" :loading="loading" @click="handelSubmit" v-if="status == 0">保存信息</Button>
@@ -552,6 +559,7 @@ import {getAskProjectByFactor} from '@/api/healthy/tAskProject';
 import harmDrawer from "../tCombo/harmDrawer";
 import fsDrawer from "./fsDrawer";
 import drawer from "../tCheckStation/drawer";
+import {formartDate} from "../../../api/tools/tool";
 
 export default {
     name: "otherInfo",
@@ -609,7 +617,7 @@ export default {
                     {required: true, message: '接害月数不能为空！', trigger: 'blur', pattern: /.+/},
                 ],
                 education: [
-                    {required: true, message: '文化程度不能为空！', trigger: 'blur', pattern: /.+/},
+                    {required: true, message: '教育程度不能为空！', trigger: 'blur', pattern: /.+/},
                 ],
                 isMarry: [
                     {required: true, message: '结婚状况不能为空！', trigger: 'change', pattern: /.+/},
@@ -1555,14 +1563,14 @@ export default {
                 },
                 {
                     type: "泌尿生殖系统",
-                    projectName: "哮喘",
+                    projectName: "尿频",
                     code: "10047",
                     degree: "——",
                     courseTime: ""
                 },
                 {
                     type: "泌尿生殖系统",
-                    projectName: "尿频、尿急",
+                    projectName: "尿急",
                     code: "10048",
                     degree: "——",
                     courseTime: ""
@@ -1801,14 +1809,14 @@ export default {
                 },
                 {
                     type: "消化系统",
-                    projectName: "腹胀、腹痛",
+                    projectName: "腹胀",
                     code: "10030",
                     degree: "——",
                     courseTime: ""
                 },
                 {
                     type: "消化系统",
-                    projectName: "腹泻",
+                    projectName: "腹痛",
                     code: "10031",
                     degree: "——",
                     courseTime: ""
@@ -1834,9 +1842,40 @@ export default {
                     degree: "——",
                     courseTime: ""
                 },
+              {
+                type: "皮肤及附属器",
+                projectName: "色素脱失或沉着",
+                code: "10079",
+                degree: "——",
+                courseTime: ""
+              },
+
+              {
+                type: "皮肤及附属器",
+                projectName: "出血点(斑)",
+                code: "10081",
+                degree: "——",
+                courseTime: ""
+              },
+
+              {
+                type: "皮肤及附属器",
+                projectName: "赘生物",
+                code: "10082",
+                degree: "——",
+                courseTime: ""
+              },
+
+              {
+                type: "皮肤及附属器",
+                projectName: "水疱或大疱",
+                code: "10083",
+                degree: "——",
+                courseTime: ""
+              },
                 {
                     type: "其他",
-                    projectName: "",
+                    projectName: "无",
                     code: "10086",
                     degree: "——",
                     courseTime: ""
@@ -2319,6 +2358,18 @@ export default {
                 } else {
                     this.personInfo.quitSomking = e;
                 }
+            }else if (type == "smokeMoon") {
+              if (e <= 0) {
+                this.$nextTick(() => {
+                  this.personInfo.smokeMoon = 0;
+                });
+              } else {
+                if (e>11){
+                  this.$Message.error("请输入小于11的数字")
+                }else{
+                  this.personInfo.smokeMoon = e;
+                }
+              }
             }
         },
         rowClassName(row, index) {
@@ -2458,7 +2509,7 @@ export default {
                     this.careerHistoryData2.push({
                         type: 2,
                         startDate: e,
-                        endDate: formatDate(new Date(), "yyyy-MM-dd"),
+                        endDate: formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"),
                         workUnit: this.personInfo.unitName,
                         workTypeCode: this.personInfo.workTypeCode,
                         workTypeText: workTypeText,
@@ -2473,7 +2524,7 @@ export default {
 					this.careerHistoryData1.push({
 						type: 1,
 						startDate: e,
-						endDate: formatDate(new Date(), "yyyy-MM-dd"),
+						endDate: formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"),
 						workUnit: this.personInfo.unitName,
                         workTypeCode: this.personInfo.workTypeCode,
                         workTypeText: workTypeText,
@@ -2553,9 +2604,14 @@ export default {
                 };
             } else if (rowIndex === 31 && columnIndex === 0) {
                 return {
-                    rowspan: 1,
+                    rowspan: 4,
                     colspan: 1
                 };
+            }else if (rowIndex === 35 && columnIndex === 0) {
+              return {
+                rowspan: 1,
+                colspan: 1
+              }
             } else if (columnIndex === 0) {
                 return {
                     rowspan: 0,
@@ -2564,6 +2620,17 @@ export default {
             }
         },
         handelSubmit(callback) {
+          //效验项目检查时间不能大于登记时间
+          if (this.personInfo.wzCheckTime && this.personInfo.registDate){
+            let data = formatDate(
+                this.personInfo.wzCheckTime,
+                "yyyy-MM-dd HH:mm:ss"
+            );
+            if (Date.parse(data)  < Date.parse(this.personInfo.registDate)){
+              this.$Message.error('项目检查时间不能小于登记时间！！！');
+              return;
+            }
+          }
             //当前时间
             let nowDate = formatDate(new Date(), "yyyy-MM-dd");
             this.$refs['otherForm'].validate((valid) => {
@@ -2603,6 +2670,33 @@ export default {
                             this.$Message.error("接害开始时间不能为空");
                             return;
                         }
+                        if (this.personInfo && this.personInfo.exposureStartDate){
+                            this.personInfo.exposureStartDate = formatDate(this.personInfo.exposureStartDate,"yyyy-MM-dd HH:mm:ss")
+                        }
+                        if (this.careerHistoryData2){
+                            for (let i = 0; i < this.careerHistoryData2.length ; i++) {
+                                this.careerHistoryData2[i].startDate = formatDate(this.careerHistoryData2[i].startDate,"yyyy-MM-dd HH:mm:ss")
+                                this.careerHistoryData2[i].endDate = formatDate(this.careerHistoryData2[i].endDate,"yyyy-MM-dd HH:mm:ss")
+                            }
+                        }
+
+                        if (this.careerHistoryData1){
+                            for (let i = 0; i < this.careerHistoryData1.length ; i++) {
+                                this.careerHistoryData1[i].startDate = formatDate(this.careerHistoryData1[i].startDate,"yyyy-MM-dd HH:mm:ss")
+                                this.careerHistoryData1[i].endDate = formatDate(this.careerHistoryData1[i].endDate,"yyyy-MM-dd HH:mm:ss")
+                            }
+                        }
+                      if (this.$hospitalName && this.$hospitalName.SmokingStatus && this.personInfo.smokeState && this.personInfo.smokeState !=4){
+                        let status = this.$hospitalName.SmokingStatus[this.personInfo.smokeState]
+                        if (this.personInfo.packageEveryDay == 0){
+                          this.$Message.error("吸烟状态为:" + status + "时,吸烟支数不能为零！！！");
+                          return;
+                        }
+                        if (this.personInfo.smokeMoon + this.personInfo.smokeYear == 0){
+                          this.$Message.error("吸烟状态为:" + status + "时,吸烟总月数不能为零！！！");
+                          return;
+                        }
+                      }
                     }
                     this.loading = true;
                     this.$Modal.confirm({
@@ -2958,6 +3052,18 @@ export default {
                                     yesOrNoSick: '无',
                                     diseaseDate: null,
                                     personId: this.personInfo.id
+                                },
+                                {
+                                  diseaseName: '痢疾',
+                                  yesOrNoSick: '无',
+                                  diseaseDate: null,
+                                  personId: this.personInfo.id
+                                },
+                                {
+                                  diseaseName: '霍乱',
+                                  yesOrNoSick: '无',
+                                  diseaseDate: null,
+                                  personId: this.personInfo.id
                                 }
                             ]
                         }
@@ -2965,6 +3071,9 @@ export default {
                         this.personInfo.pastMedicalHistoryData = [];
                     }
                 } else {
+                    /*if (this.personInfo.exposureStartDate){
+                        this.personInfo.exposureStartDate = formartDate(this.personInfo.exposureStartDate, 'yyyy-MM-dd HH:mm:ss')
+                    }*/
                     if (!this.personInfo.workMonth) {
                         this.personInfo.workMonth = 0;
                     }
@@ -3199,14 +3308,14 @@ export default {
                         },
                         {
                             type: "泌尿生殖系统",
-                            projectName: "哮喘",
+                            projectName: "尿频",
                             code: "10047",
                             degree: "——",
                             courseTime: ""
                         },
                         {
                             type: "泌尿生殖系统",
-                            projectName: "尿频、尿急",
+                            projectName: "尿急",
                             code: "10048",
                             degree: "——",
                             courseTime: ""
@@ -3449,14 +3558,14 @@ export default {
                         },
                         {
                             type: "消化系统",
-                            projectName: "腹胀、腹痛",
+                            projectName: "腹胀",
                             code: "10030",
                             degree: "——",
                             courseTime: ""
                         },
                         {
                             type: "消化系统",
-                            projectName: "腹泻",
+                            projectName: "腹痛",
                             code: "10031",
                             degree: "——",
                             courseTime: ""
@@ -3482,9 +3591,38 @@ export default {
                             degree: "——",
                             courseTime: ""
                         },
+                      {
+                        type: "皮肤及附属器",
+                        projectName: "色素脱失或沉着",
+                        code: "10079",
+                        degree: "——",
+                        courseTime: ""
+                      },
+                      {
+                        type: "皮肤及附属器",
+                        projectName: "出血点(斑)",
+                        code: "10081",
+                        degree: "——",
+                        courseTime: ""
+                      },
+                      {
+                        type: "皮肤及附属器",
+                        projectName: "赘生物",
+                        code: "10082",
+                        degree: "——",
+                        courseTime: ""
+                      },
+                      {
+                        type: "皮肤及附属器",
+                        projectName: "水疱或大疱",
+                        code: "10083",
+                        degree: "——",
+                        courseTime: ""
+                      },
                         {
                             type: "其他",
                             projectName: "无",
+                            code: "10086",
                             degree: "——",
                             courseTime: ""
                         }
@@ -3545,7 +3683,7 @@ export default {
                                 workTypeText: workTypeText,
                                 hazardFactorsCode: this.personInfo.hazardFactors,
                                 hazardFactorsText: this.personInfo.hazardFactorsText,
-                                protectiveMeasures: "有",
+                                protectiveMeasures: "",
                                 contactTime: "48小时/周",
                                 personId: this.personInfo.id,
                                 department: this.personInfo.department//车间(部门)
@@ -3576,8 +3714,23 @@ export default {
                     if (this.personInfo.smokeState) {
                         this.personInfo.smokeState = this.personInfo.smokeState;
                     } else {
-                        this.personInfo.smokeState = '不吸烟';
+                        this.personInfo.smokeState = "4";
                     }
+                  if (this.personInfo.smokeMoon) {
+                    this.personInfo.smokeMoon = this.personInfo.smokeMoon;
+                  } else {
+                    this.personInfo.smokeMoon = 0;
+                  }
+                  if (this.personInfo.smokeYear) {
+                    this.personInfo.smokeYear = this.personInfo.smokeYear;
+                  } else {
+                    this.personInfo.smokeYear = 0;
+                  }
+                  if (this.personInfo.packageEveryDay) {
+                    this.personInfo.packageEveryDay = this.personInfo.packageEveryDay;
+                  } else {
+                    this.personInfo.packageEveryDay = 0;
+                  }
                     if (this.personInfo.drinkState) {
                         this.personInfo.drinkState = this.personInfo.drinkState;
                     } else {

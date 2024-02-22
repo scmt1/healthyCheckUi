@@ -1779,7 +1779,7 @@
 							if (i.orderGroupItemProjectName.replaceAll(" ", "") == "宫颈") {
 								td.cervix = i.result + unit;
 							}
-							if (i.orderGroupItemProjectName.replaceAll(" ", "") == "宫体") {
+							if (i.orderGroupItemProjectName.replaceAll(" ", "") == "宫体" || i.orderGroupItemProjectName.replaceAll(" ", "") == "子宫体") {
 								td.uterineBody = i.result + unit;
 							}
 							if (i.orderGroupItemProjectName.replaceAll(" ", "") == "附件") {

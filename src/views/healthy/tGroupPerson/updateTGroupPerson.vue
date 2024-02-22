@@ -28,7 +28,7 @@
                             </FormItem>
                         </Col>
                         <Col span="12">
-                            <FormItem label="证件号码">
+                            <FormItem label="证件号码" prop="idCard">
                                 <Input :disabled="disabled" type="text" v-model="tGroupPersonForm.idCard"
                                        placeholder="请输入证件号码" @input="idCardChange"/>
                             </FormItem>
@@ -64,12 +64,18 @@
                                        placeholder="请输入年龄"/>
                             </FormItem>
                         </Col>
-                        <Col span="12">
-                            <FormItem label="手机号码" prop="mobile">
+                        <Col span="12" v-if="physicalType == '健康体检'">
+                            <FormItem label="手机号码">
                                 <Input :disabled="disabled" type="text" v-model="tGroupPersonForm.mobile"
                                        placeholder="请输入手机号码"/>
                             </FormItem>
                         </Col>
+                      <Col span="12" v-else>
+                        <FormItem label="手机号码" prop="mobile">
+                          <Input :disabled="disabled" type="text" v-model="tGroupPersonForm.mobile"
+                                 placeholder="请输入手机号码"/>
+                        </FormItem>
+                      </Col>
                     </Row>
                     <Row>
                         <Col span="12" v-if="tGroupPersonForm.id">
@@ -81,7 +87,7 @@
                                         class="input" @on-select="onOrderSelectChange" transfer>
                                     <Option v-for="(item,index) in orderArr" :key="index" :value="item.id" :tag="item.groupUnitId"
                                             :label="item.groupUnitName">
-                                        {{ item.groupUnitName + '-' + item.orderCode }}
+                                        {{ item.groupUnitName}}
                                     </Option>
                                 </Select>
                             </FormItem>
@@ -97,7 +103,7 @@
 
                             </FormItem>
                         </Col>
-                        <Col span="12"v-if="tGroupPersonForm.id">
+                        <Col span="12" v-if="tGroupPersonForm.id && physicalType !== '从业体检'">
                             <FormItem label="分组" prop="groupId">
                                 <Select @on-change="groupChange" transfer :disabled="disabled" v-model="tGroupPersonForm.groupId" placeholder="请选择分组">
                                     <Option :value="item.id" v-for="(item,index) in groupList" :key="index" :tag="item">{{item.name}}</Option>
@@ -105,7 +111,7 @@
                             </FormItem>
                         </Col>
                         <Col span="12">
-                            <FormItem label="结婚状况">
+                            <FormItem label="结婚状况" prop="isMarry">
                                 <Select :disabled="disabled" transfer v-model="tGroupPersonForm.isMarry" placeholder="请选择">
                                     <Option value="未婚">未婚</Option>
                                     <Option value="已婚">已婚</Option>
@@ -118,16 +124,14 @@
                         <Col span="12" v-if="physicalType == '从业体检'">
                             <FormItem label="民族" prop="nation">
                                 <Select  transfer v-model="tGroupPersonForm.nation" placeholder="请选择">
-                                    <Option v-for="(item,i) in nationArr" :value="item.value">{{item.title}}</Option>
+                                    <Option v-for="(item) in nationArr" :value="item.value" :key="item.value">{{item.title}}</Option>
                                 </Select>
                             </FormItem>
                         </Col>
-                    </Row>
-                    <Row>
                         <Col span="12" v-if="physicalType == '从业体检'">
                             <FormItem label="从业类别" prop="certificateType">
                                 <Select  transfer v-model="tGroupPersonForm.certificateType" placeholder="请选择">
-                                    <Option v-for="(item,i) in certificateTypeArr" :value="item.value">{{item.title}}</Option>
+                                    <Option v-for="(item,i) in certificateTypeArr" :value="item.value" :key="item.value">{{item.title}}</Option>
                                 </Select>
                             </FormItem>
                         </Col>
@@ -142,7 +146,7 @@
                             </FormItem>
                         </Col>
                         <Col span="12">
-                            <FormItem label="证件号码">
+                            <FormItem label="证件号码" prop="idCard">
                                 <Input :disabled="disabled" type="text" v-model="tGroupPersonForm.idCard"
                                        placeholder="请输入证件号码" @input="idCardChange"/>
                             </FormItem>
@@ -158,7 +162,7 @@
                             </FormItem>
                         </Col>
                         <Col span="12">
-                            <FormItem label="出生日期">
+                            <FormItem label="出生日期" prop="birth">
                                 <DatePicker type="date"
                                             :disabled="disabled"
                                             placeholder="请选择"
@@ -283,6 +287,12 @@
                                 </Select>
                             </FormItem>
                         </Col>
+                      <Col span="12">
+                        <FormItem label="接触相应职业病危害因素用人单位名称">
+                          <Input type="text" v-model="tGroupPersonForm.enterpriseName"
+                                 placeholder="请输入接触相应职业病危害因素用人单位名称"/>
+                        </FormItem>
+                      </Col>
                     </Row>
                     <Row>
                         <Col span="24" v-if="tGroupPersonForm.id">
@@ -413,7 +423,8 @@ export default {
                 hazardFactors: "",
                 hazardFactorsText: "",
                 physicalType: "",
-                otherHazardFactors: ""
+                otherHazardFactors: "",
+                enterpriseName:"",
             },
             tGroupPersonFormRule: {
                 personName: [
@@ -443,7 +454,7 @@ export default {
                     {required: true, message: '请选择婚姻状态！', trigger: 'change', pattern: /.+/},
                 ],
                 workStateCode: [
-                    {required: true, message: '请选择婚姻状态！', trigger: 'change', pattern: /.+/},
+                    {required: true, message: '请选择工种名称！', trigger: 'change', pattern: /.+/},
                 ],
                 mobile: [
                     {required: true, message: '手机号码有误！', trigger: 'blur', pattern: /^1[3456789]\d{9}$/}
@@ -471,6 +482,7 @@ export default {
                 ],
                 otherHazardFactors: [
                     {required: true, message: '其他危害因素不能为空！', trigger: 'blur', pattern: /.+/},
+                    {type: 'string', max: 200, message: '其他危害因素的最大长度为200！', trigger: 'blur'}
                 ],
                 jcType: [
                     {required: true, message: '监测类型素不能为空！', trigger: 'blur', pattern: /.+/},
@@ -490,6 +502,9 @@ export default {
                 ],
                 certificateType:[
                     {required: true, message: '从业类别不能为空', trigger: 'change'}
+                ],
+                isMarry:[
+                    {required: true, message: '结婚状态不能为空', trigger: 'change'}
                 ]
 
 
@@ -726,7 +741,8 @@ export default {
                     ids.push(i.typeCode);
                     txts.push(i.typeName);
                 })
-                this.tGroupPersonForm.hazardFactors = ids.join("|");
+                /*this.tGroupPersonForm.hazardFactors = ids.join("|");*/
+                this.tGroupPersonForm.hazardFactors = ids;
                 this.tGroupPersonForm.hazardFactorsText = txts.join("|");
             }
         },
@@ -782,7 +798,7 @@ export default {
             } else {
                 this.tGroupPersonForm.age = null;
                 this.tGroupPersonForm.sex = null;
-                this.tGroupPersonForm.birth = null;
+                this.tGroupPersonForm.birth = '';
             }
         },
         //关闭弹框
@@ -841,6 +857,7 @@ export default {
                 hazardFactorsText: "",
                 physicalType: "",
                 otherHazardFactors: "",
+                enterpriseName:"",
                 nation:"",
                 tolerable:this.$hospitalName.importFailure
             };
@@ -914,10 +931,10 @@ export default {
         //提交
         handelSubmit() {
             let _this = this;
-            if (this.tGroupPersonForm.workStateCode == '1001' && !this.tGroupPersonForm.exposureStartDate) {
-                this.tGroupPersonForm.exposureStartDate = formatDate(new Date(), "yyyy-MM-dd");
+            if (_this.tGroupPersonForm.workStateCode == '1001' && !_this.tGroupPersonForm.exposureStartDate) {
+              _this.tGroupPersonForm.exposureStartDate = formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
             }
-            this.$refs['tGroupPersonForm'].validate((valid) => {
+          _this.$refs['tGroupPersonForm'].validate((valid) => {
                 if (valid) {
                     _this.loading = true;
                     if (_this.physicalType == '职业体检' || _this.physicalType == '放射体检') {
@@ -928,42 +945,46 @@ export default {
                         _this.tGroupPersonForm.workStateText = _this.tGroupPersonForm.workStateText.trim();
                     } else {
                         _this.tGroupPersonForm.hazardFactors = null;
+                        _this.tGroupPersonForm.hazardFactorsText = null;
                     }
                     if(_this.tGroupPersonForm.registDate){
-						_this.tGroupPersonForm.registDate = formatDate(_this.tGroupPersonForm.registDate) ;
+						_this.tGroupPersonForm.registDate = formatDate(_this.tGroupPersonForm.registDate,'yyyy-MM-dd HH:mm:ss') ;
+                    }
+                    if(_this.tGroupPersonForm.birth){
+                        _this.tGroupPersonForm.birth = formatDate(_this.tGroupPersonForm.birth,'yyyy-MM-dd HH:mm:ss') ;
                     }
                     if (_this.tGroupPersonId != null && _this.tGroupPersonId.trim().length > 0) {
 						_this.tGroupPersonForm.id = _this.tGroupPersonId;
 						_this.tGroupPersonForm.oldGroupId = _this.tGroupPersonForm.groupId;
                         // groupPersonApi.updateTGroupPerson(this.tGroupPersonForm).then(res => {
-                        groupPersonApi.updateTGroupPersonAndGroup(this.tGroupPersonForm).then(res => {
+                        groupPersonApi.updateTGroupPersonAndGroup(_this.tGroupPersonForm).then(res => {
                             if (res.code == 200) {
-                                this.closeModal(false);
-                                this.$emit('handleSearch');
-                                this.$Message.success('保存成功');
+                              _this.closeModal(false);
+                              _this.$emit('handleSearch');
+                              _this.$Message.success('保存成功');
                             } else {
-                                this.$Message.error(res.msg);
+                              _this.$Message.error(res.msg);
                             }
                         }).finally(() => {
-                            this.loading = false;
+                          _this.loading = false;
                         })
                     } else {
-                        this.tGroupPersonForm.physicalType = this.physicalType;
-                        groupPersonApi.addTGroupPerson(this.tGroupPersonForm).then(res => {
+                      _this.tGroupPersonForm.physicalType = _this.physicalType;
+                        groupPersonApi.addTGroupPerson(_this.tGroupPersonForm).then(res => {
                             if (res.code == 200) {
-                                this.closeModal(false);
-                                this.$emit('handleSearch');
-                                this.$Message.success('保存成功');
+                              _this.closeModal(false);
+                              _this.$emit('handleSearch');
+                              _this.$Message.success('保存成功');
                             } else {
-                                this.$Message.error(res.msg);
+                              _this.$Message.error(res.msg);
                             }
                         }).finally(() => {
-                            this.loading = false;
+                          _this.loading = false;
                         })
                     }
                 } else {
-                    this.loading = false;
-                    this.$Message.error('表单验证不通过！');
+                  _this.loading = false;
+                  _this.$Message.error('表单验证不通过！');
                 }
             });
         },
@@ -1021,6 +1042,10 @@ export default {
                 /*this.tGroupPersonForm.groupId = "";*/
                 // this.getGroupByUnitId(e.tag);
                /* this.getGroup(e.value);*/
+                if (this.physicalType == "职业体检" || this.physicalType == "放射体检"){
+                    this.tGroupPersonForm.orderId = e.value;
+                    this.getGroup(e.value);
+                }
             }
         },
     },

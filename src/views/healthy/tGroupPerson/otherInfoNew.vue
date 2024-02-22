@@ -32,629 +32,221 @@
         id="tab"
       >
         <!-- 职业体检、放射体检 -->
-        <template
-          v-if="
-            personInfo.physicalType == '职业体检' ||
-            personInfo.physicalType == '放射体检'
-          "
-        >
-          <!-- 基本信息 -->
-          <el-tab-pane name="jbxx" label="基本信息">
-            <div v-if="tabsValue == 'jbxx'">
-              <info-divider orientation="left" style="margin-top: -16px"
-                >基本信息</info-divider
-              >
-              <Row>
-                <!--<Col span="8">
-                                <FormItem label="特殊工种名称">
-                                    <Input type="text" v-model="personInfo.workName" placeholder="请输入工种其他名称"/>
-                                </FormItem>
-                            </Col>-->
-                <Col span="8">
-                  <FormItem label="工龄年数" prop="workYear">
-                    <InputNumber
-                      :min="0"
-                      :max="100"
-                      v-model="personInfo.workYear"
-                      @on-blur="workYearChange"
-                      placeholder="请输入总工龄年数"
-                    />
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="工龄月数" prop="workMonth">
-                    <InputNumber
-                      :min="0"
-                      :max="11"
-                      v-model="personInfo.workMonth"
-                      @on-blur="workYearChange"
-                      placeholder="请输入工龄月数"
-                    />
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="结婚状况" prop="isMarry">
-                    <Select
-                      v-model="personInfo.isMarry"
-                      placeholder="请选择"
-                      clearable
-                      transfer
-                    >
-                      <Option value="未婚">未婚</Option>
-                      <Option value="已婚">已婚</Option>
-                      <Option value="离异">离异</Option>
-                      <Option value="丧偶">丧偶</Option>
-                      <Option value="其他">其他</Option>
-                    </Select>
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row v-if="isInterrogationSplitting">
-                <Col span="8">
-                  <FormItem label="接害年数" prop="exposureWorkYear">
-                    <InputNumber
-                      :min="0"
-                      :max="100"
-                      v-model="personInfo.exposureWorkYear"
-                      @on-blur="workYearChangeExp"
-                      placeholder="请输入接害工龄年数"
-                    />
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="接害月数" prop="exposureWorkMonth">
-                    <InputNumber
-                      :min="0"
-                      :max="11"
-                      v-model="personInfo.exposureWorkMonth"
-                      @on-blur="workYearChangeExp"
-                      placeholder="请输入接害工龄月数"
-                    />
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row>
-                <Col span="8" v-if="personInfo.workStateCode != '1001'">
-                  <FormItem label="接害开始日期" prop="exposureStartDate">
-                    <DatePicker
-                      type="date"
-                      placeholder="请选择"
-                      style="width: 100%"
-                      transfer
-                      v-model="personInfo.exposureStartDate"
-                      :options="option"
-                      @on-change="exposureStartDateChange"
-                      format="yyyy-MM-dd"
-                    />
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="文化程度">
-                    <Select
-                      v-model="personInfo.education"
-                      placeholder="请选择"
-                      clearable
-                      transfer
-                    >
-                      <Option
-                        v-for="(item, i) in personInfoPriority"
-                        :key="i"
-                        :value="item.value"
-                        >{{ item.title }}</Option
+        <template v-if="isConsultation">
+          <template
+            v-if="
+              personInfo.physicalType == '职业体检' ||
+              personInfo.physicalType == '放射体检'
+            "
+          >
+            <!-- 基本信息 -->
+            <el-tab-pane name="jbxx" label="基本信息">
+              <div v-if="tabsValue == 'jbxx'">
+                <info-divider orientation="left" style="margin-top: -16px"
+                  >基本信息</info-divider
+                >
+                <Row>
+                  <!--<Col span="8">
+                                  <FormItem label="特殊工种名称">
+                                      <Input type="text" v-model="personInfo.workName" placeholder="请输入工种其他名称"/>
+                                  </FormItem>
+                              </Col>-->
+                  <Col span="8">
+                    <FormItem label="工龄年数" prop="workYear">
+                      <InputNumber
+                        :min="0"
+                        :max="100"
+                        v-model="personInfo.workYear"
+                        @on-blur="workYearChange"
+                        placeholder="请输入总工龄年数"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="工龄月数" prop="workMonth">
+                      <InputNumber
+                        :min="0"
+                        :max="11"
+                        v-model="personInfo.workMonth"
+                        @on-blur="workYearChange"
+                        placeholder="请输入工龄月数"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="结婚状况" prop="isMarry">
+                      <Select
+                        v-model="personInfo.isMarry"
+                        placeholder="请选择"
+                        clearable
+                        transfer
                       >
-                    </Select>
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="家庭地址" prop="familyAddress">
-                    <Input
-                      type="text"
-                      :maxlength="50"
-                      v-model="personInfo.familyAddress"
-                      placeholder="请输入家庭地址"
-                    />
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="工种名称" prop="workTypeText">
-                    <Input
-                      placeholder="请选择工种"
-                      @click.native="handleWorkCode"
-                      v-model="personInfo.workTypeText"
-                    ></Input>
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="工种其他名称">
-                    <Input
-                      type="text"
-                      v-model="personInfo.workName"
-                      placeholder="请输入工种其他名称"
-                    />
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="所属部门">
-                    <Input
-                      type="text"
-                      v-model="personInfo.department"
-                      placeholder="请输入部门名称"
-                    />
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row
-                v-if="
-                  personInfo.physicalType == '放射体检' ||
-                  (personInfo.hazardFactors &&
-                    (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                      personInfo.hazardFactors.indexOf('160501') > -1 ||
-                      personInfo.hazardFactors.indexOf('160502') > -1 ||
-                      personInfo.hazardFactors.indexOf('160503') > -1 ||
-                      personInfo.hazardFactors.indexOf('160504') > -1 ||
-                      personInfo.hazardFactors.indexOf('160506') > -1 ||
-                      personInfo.hazardFactors.indexOf('160507') > -1 ||
-                      personInfo.hazardFactors.indexOf('160999') > -1))
-                "
-              >
-                <Col span="8">
-                  <FormItem label="邮政编码">
-                    <Input
-                      type="text"
-                      v-model="personInfo.zipCode"
-                      placeholder="请输入邮政编码"
-                    />
-                  </FormItem>
-                </Col>
-                <Col span="8">
-                  <FormItem label="职务/职称">
-                    <Input
-                      type="text"
-                      v-model="personInfo.job"
-                      placeholder="请输入职务名称"
-                    />
-                  </FormItem>
-                </Col>
-              </Row>
+                        <Option value="未婚">未婚</Option>
+                        <Option value="已婚">已婚</Option>
+                        <Option value="离异">离异</Option>
+                        <Option value="丧偶">丧偶</Option>
+                        <Option value="其他">其他</Option>
+                      </Select>
+                    </FormItem>
+                  </Col>
+                </Row>
+                <Row v-if="isInterrogationSplitting">
+                  <Col span="8">
+                    <FormItem label="接害年数" prop="exposureWorkYear">
+                      <InputNumber
+                        :min="0"
+                        :max="100"
+                        v-model="personInfo.exposureWorkYear"
+                        @on-blur="workYearChangeExp"
+                        placeholder="请输入接害工龄年数"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="接害月数" prop="exposureWorkMonth">
+                      <InputNumber
+                        :min="0"
+                        :max="11"
+                        v-model="personInfo.exposureWorkMonth"
+                        @on-blur="workYearChangeExp"
+                        placeholder="请输入接害工龄月数"
+                      />
+                    </FormItem>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col span="8" v-if="personInfo.workStateCode != '1001'">
+                    <FormItem label="接害开始日期" prop="exposureStartDate">
+                      <DatePicker
+                        type="date"
+                        placeholder="请选择"
+                        style="width: 100%"
+                        transfer
+                        v-model="personInfo.exposureStartDate"
+                        :options="option"
+                        @on-change="exposureStartDateChange"
+                        format="yyyy-MM-dd"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="教育程度">
+                      <Select
+                        v-model="personInfo.education"
+                        placeholder="请选择"
+                        clearable
+                        transfer
+                      >
+                        <Option
+                          v-for="(item, i) in personInfoPriority"
+                          :key="i"
+                          :value="item.value"
+                          >{{ item.title }}</Option
+                        >
+                      </Select>
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="家庭(通讯)地址" prop="familyAddress">
+                      <Input
+                        type="text"
+                        :maxlength="50"
+                        v-model="personInfo.familyAddress"
+                        placeholder="请输入家庭地址"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="工种名称" prop="workTypeText">
+                      <Input
+                        placeholder="请选择工种"
+                        @click.native="handleWorkCode"
+                        v-model="personInfo.workTypeText"
+                      ></Input>
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="工种其他名称">
+                      <Input
+                        type="text"
+                        v-model="personInfo.workName"
+                        placeholder="请输入工种其他名称"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="所属部门">
+                      <Input
+                        type="text"
+                        v-model="personInfo.department"
+                        placeholder="请输入部门名称"
+                      />
+                    </FormItem>
+                  </Col>
+                </Row>
+                <Row
+                  v-if="
+                    personInfo.physicalType == '放射体检' ||
+                    (personInfo.hazardFactors &&
+                      (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                        personInfo.hazardFactors.indexOf('160501') > -1 ||
+                        personInfo.hazardFactors.indexOf('160502') > -1 ||
+                        personInfo.hazardFactors.indexOf('160503') > -1 ||
+                        personInfo.hazardFactors.indexOf('160504') > -1 ||
+                        personInfo.hazardFactors.indexOf('160506') > -1 ||
+                        personInfo.hazardFactors.indexOf('160507') > -1 ||
+                        personInfo.hazardFactors.indexOf('160999') > -1))
+                  "
+                >
+                  <Col span="8">
+                    <FormItem label="邮政编码">
+                      <Input
+                        type="text"
+                        v-model="personInfo.zipCode"
+                        placeholder="请输入邮政编码"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span="8">
+                    <FormItem label="职务/职称">
+                      <Input
+                        type="text"
+                        v-model="personInfo.job"
+                        placeholder="请输入职务名称"
+                      />
+                    </FormItem>
+                  </Col>
+                </Row>
 
-              <info-divider orientation="left" style="margin-top: -16px"
-                >职业史和个人生活史</info-divider
-              >
+                <info-divider orientation="left" style="margin-top: -16px"
+                  >职业史和个人生活史</info-divider
+                >
 
-              <Row style="margin-top: 15px" v-if="personInfo.sex == '女'">
-                <FormItem label="月经史">
-                  <Row :gutter="15">
-                    <Col style="width: 225px">
-                      <RadioGroup v-model="personInfo.menstrualHistory">
-                        <Radio label="正常"></Radio>
-                        <Radio label="经期"></Radio>
-                        <Radio label="停经"></Radio>
-                        <Radio label="异常"></Radio>
-                      </RadioGroup>
-                    </Col>
-                    <Col>
-                      <Input
-                        v-model="personInfo.menstrualInfo"
-                        type="text"
-                        v-if="personInfo.menstrualHistory == '异常'"
-                        v-width="292"
-                      />
-                    </Col>
-                  </Row>
-                  <Row
-                    :gutter="20"
-                    style="display: flex; margin-top: 20px"
-                    v-if="
-                      isMenstrualHistory ||
-                      this.physicalType == '放射体检' ||
-                      (personInfo.hazardFactors &&
-                        (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                          personInfo.hazardFactors.indexOf('160501') > -1 ||
-                          personInfo.hazardFactors.indexOf('160502') > -1 ||
-                          personInfo.hazardFactors.indexOf('160503') > -1 ||
-                          personInfo.hazardFactors.indexOf('160504') > -1 ||
-                          personInfo.hazardFactors.indexOf('160506') > -1 ||
-                          personInfo.hazardFactors.indexOf('160507') > -1 ||
-                          personInfo.hazardFactors.indexOf('160999') > -1))
-                    "
-                  >
-                    <Col span="4">
-                      <Input type="number" v-model="personInfo.menarche">
-                        <span slot="prepend">初潮</span>
-                        <span slot="append">岁</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input type="number" v-model="personInfo.period">
-                        <span slot="prepend">经期</span>
-                        <span slot="append">天</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input type="number" v-model="personInfo.cycle">
-                        <span slot="prepend">周期</span>
-                        <span slot="append">天</span>
-                      </Input>
-                    </Col>
-                    <Col span="5">
-                      <Input
-                        type="number"
-                        v-model="personInfo.lastMenstruation"
-                      >
-                        <span slot="prepend">停经年龄</span>
-                        <span slot="append">岁</span>
-                      </Input>
-                    </Col>
-                  </Row>
-                </FormItem>
-              </Row>
-              <Row
-                v-if="
-                  personInfo.physicalType == '放射体检' ||
-                  (personInfo.hazardFactors &&
-                    (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                      personInfo.hazardFactors.indexOf('160501') > -1 ||
-                      personInfo.hazardFactors.indexOf('160502') > -1 ||
-                      personInfo.hazardFactors.indexOf('160503') > -1 ||
-                      personInfo.hazardFactors.indexOf('160504') > -1 ||
-                      personInfo.hazardFactors.indexOf('160506') > -1 ||
-                      personInfo.hazardFactors.indexOf('160507') > -1 ||
-                      personInfo.hazardFactors.indexOf('160999') > -1))
-                "
-              >
-                <FormItem label="婚姻史">
-                  <Row style="display: flex; margin-bottom: 24px">
-                    <div>结婚日期：</div>
-                    <DatePicker
-                      type="date"
-                      placeholder="请选择"
-                      style="width: 223px"
-                      transfer
-                      v-model="personInfo.marriageDate"
-                      @on-change="marriageDateChange"
-                      format="yyyy-MM-dd"
-                    />
-                  </Row>
-                  <Row style="margin-bottom: 24px; display: flex">
-                    <div>配偶接触放射线情况：</div>
-                    <Input
-                      v-model="personInfo.spouseRadiationSituation"
-                      maxlength="50"
-                      type="text"
-                      v-width="500"
-                    />
-                  </Row>
-                  <Row style="display: flex">
-                    <div>配偶职业及健康状况：</div>
-                    <Input
-                      v-model="personInfo.spouseHealthSituation"
-                      maxlength="50"
-                      type="text"
-                      v-width="500"
-                    />
-                  </Row>
-                </FormItem>
-              </Row>
-              <Row v-if="personInfo.sex == '男'">
-                <FormItem label="生育史">
-                  <Row :gutter="15">
-                    <Col span="4">
-                      <Input
-                        class="sexExisting"
-                        v-model="personInfo.existingChildren"
-                        type="number"
-                        @input="existChildChange('child', $event)"
-                      >
-                        <span slot="prepend">现有子女</span>
-                        <span slot="append">人</span>
-                      </Input>
-                    </Col>
-                  </Row>
-                  <Row
-                    style="margin-top: 24px"
-                    :gutter="15"
-                    v-if="
-                      personInfo.physicalType == '放射体检' ||
-                      (personInfo.hazardFactors &&
-                        (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                          personInfo.hazardFactors.indexOf('160501') > -1 ||
-                          personInfo.hazardFactors.indexOf('160502') > -1 ||
-                          personInfo.hazardFactors.indexOf('160503') > -1 ||
-                          personInfo.hazardFactors.indexOf('160504') > -1 ||
-                          personInfo.hazardFactors.indexOf('160506') > -1 ||
-                          personInfo.hazardFactors.indexOf('160507') > -1 ||
-                          personInfo.hazardFactors.indexOf('160999') > -1))
-                    "
-                  >
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.boys"
-                        type="number"
-                        @input="existChildChange('boys', $event)"
-                      >
-                        <span slot="prepend">现有男孩</span>
-                        <span slot="append">人</span>
-                      </Input>
-                    </Col>
-                    <Col span="7" style="display: flex">
-                      <div>出生日期：</div>
-                      <Input
-                        v-model="personInfo.boysBirth"
-                        maxlength="50"
-                        type="text"
-                      />
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.girls"
-                        type="number"
-                        @input="existChildChange('girls', $event)"
-                      >
-                        <span slot="prepend">现有女孩</span>
-                        <span slot="append">人</span>
-                      </Input>
-                    </Col>
-                    <Col span="7" style="display: flex">
-                      <div>出生日期：</div>
-                      <Input
-                        v-model="personInfo.girlsBirth"
-                        maxlength="50"
-                        type="text"
-                      />
-                    </Col>
-                  </Row>
-                </FormItem>
-              </Row>
-              <Row v-if="personInfo.sex == '女'">
-                <FormItem label="生育史">
-                  <Row :gutter="15" style="margin-bottom: 24px">
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.existingChildren"
-                        type="number"
-                        @input="existChildChange('child', $event)"
-                      >
-                        <span slot="prepend">现有子女</span>
-                        <span slot="append">人</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.abortion"
-                        type="number"
-                        @input="existChildChange('abortion', $event)"
-                      >
-                        <span slot="prepend">流产</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.premature"
-                        type="number"
-                        @input="existChildChange('premature', $event)"
-                      >
-                        <span slot="prepend">早产</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.death"
-                        type="number"
-                        @input="existChildChange('death', $event)"
-                      >
-                        <span slot="prepend">死亡</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.abnormalFetus"
-                        type="number"
-                        @input="existChildChange('abnormalFetus', $event)"
-                      >
-                        <span slot="prepend">异常胎</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                  </Row>
-                  <Row
-                    :gutter="15"
-                    style="margin-bottom: 24px"
-                    v-if="
-                      personInfo.physicalType == '放射体检' ||
-                      (personInfo.hazardFactors &&
-                        (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                          personInfo.hazardFactors.indexOf('160501') > -1 ||
-                          personInfo.hazardFactors.indexOf('160502') > -1 ||
-                          personInfo.hazardFactors.indexOf('160503') > -1 ||
-                          personInfo.hazardFactors.indexOf('160504') > -1 ||
-                          personInfo.hazardFactors.indexOf('160506') > -1 ||
-                          personInfo.hazardFactors.indexOf('160507') > -1 ||
-                          personInfo.hazardFactors.indexOf('160999') > -1))
-                    "
-                  >
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.pregnancyCount"
-                        type="number"
-                        @input="existChildChange('pregnancyCount', $event)"
-                      >
-                        <span slot="prepend">孕次</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.liveBirth"
-                        type="number"
-                        @input="existChildChange('liveBirth', $event)"
-                      >
-                        <span slot="prepend">活产</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.abortionSmall"
-                        type="number"
-                        @input="existChildChange('abortionSmall', $event)"
-                      >
-                        <span slot="prepend">自然流产</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.multiparous"
-                        type="number"
-                        @input="existChildChange('multiparous', $event)"
-                      >
-                        <span slot="prepend">多胎</span>
-                        <span slot="append">次</span>
-                      </Input>
-                    </Col>
-                    <Col span="7" style="display: flex">
-                      <div>不孕不育原因：</div>
-                      <Input
-                        v-model="personInfo.infertilityReason"
-                        maxlength="50"
-                        type="text"
-                      />
-                    </Col>
-                  </Row>
-                  <Row
-                    :gutter="15"
-                    style="margin-bottom: 24px"
-                    v-if="
-                      personInfo.physicalType == '放射体检' ||
-                      (personInfo.hazardFactors &&
-                        (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                          personInfo.hazardFactors.indexOf('160501') > -1 ||
-                          personInfo.hazardFactors.indexOf('160502') > -1 ||
-                          personInfo.hazardFactors.indexOf('160503') > -1 ||
-                          personInfo.hazardFactors.indexOf('160504') > -1 ||
-                          personInfo.hazardFactors.indexOf('160506') > -1 ||
-                          personInfo.hazardFactors.indexOf('160507') > -1 ||
-                          personInfo.hazardFactors.indexOf('160999') > -1))
-                    "
-                  >
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.boys"
-                        type="number"
-                        @input="existChildChange('boys', $event)"
-                      >
-                        <span slot="prepend">现有男孩</span>
-                        <span slot="append">人</span>
-                      </Input>
-                    </Col>
-                    <Col span="7" style="display: flex">
-                      <div>出生日期：</div>
-                      <Input
-                        v-model="personInfo.boysBirth"
-                        maxlength="50"
-                        type="text"
-                      />
-                    </Col>
-                    <Col span="4">
-                      <Input
-                        v-model="personInfo.girls"
-                        type="number"
-                        @input="existChildChange('girls', $event)"
-                      >
-                        <span slot="prepend">现有女孩</span>
-                        <span slot="append">人</span>
-                      </Input>
-                    </Col>
-                    <Col span="7" style="display: flex">
-                      <div>出生日期：</div>
-                      <Input
-                        v-model="personInfo.girlsBirth"
-                        maxlength="50"
-                        type="text"
-                      />
-                    </Col>
-                  </Row>
-                  <Row
-                    :gutter="15"
-                    v-if="
-                      personInfo.physicalType == '放射体检' ||
-                      (personInfo.hazardFactors &&
-                        (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                          personInfo.hazardFactors.indexOf('160501') > -1 ||
-                          personInfo.hazardFactors.indexOf('160502') > -1 ||
-                          personInfo.hazardFactors.indexOf('160503') > -1 ||
-                          personInfo.hazardFactors.indexOf('160504') > -1 ||
-                          personInfo.hazardFactors.indexOf('160506') > -1 ||
-                          personInfo.hazardFactors.indexOf('160507') > -1 ||
-                          personInfo.hazardFactors.indexOf('160999') > -1))
-                    "
-                  >
-                    <Col span="10" style="display: flex">
-                      <div>子女健康状况：</div>
-                      <Input
-                        v-model="personInfo.childrensHealth"
-                        maxlength="50"
-                        type="text"
-                      />
-                    </Col>
-                  </Row>
-                </FormItem>
-              </Row>
-              <Row>
-                <FormItem label="过敏史">
-                  <Row>
-                    <Col style="width: 85px">
-                      <RadioGroup v-model="personInfo.allergies">
-                        <Radio label="无"></Radio>
-                        <Radio label="有"></Radio>
-                      </RadioGroup>
-                    </Col>
-                    <Col>
-                      <Input
-                        v-model="personInfo.allergiesInfo"
-                        type="text"
-                        v-if="personInfo.allergies == '有'"
-                        v-width="433"
-                      />
-                    </Col>
-                  </Row>
-                </FormItem>
-              </Row>
-              <Row>
-                <FormItem label="烟酒史">
-                  <Row :gutter="15" style="margin-bottom: 24px">
-                    <Col style="width: 225px">
-                      <RadioGroup v-model="personInfo.smokeState">
-                        <Radio label="不吸烟"></Radio>
-                        <Radio label="偶尔吸"></Radio>
-                        <Radio label="经常吸"></Radio>
-                      </RadioGroup>
-                    </Col>
-                    <Col span="5">
-                      <Input
-                        v-model="personInfo.packageEveryDay"
-                        type="number"
-                        @input="existChildChange('packageEveryDay', $event)"
-                      >
-                        <span slot="append">支每天</span>
-                      </Input>
-                    </Col>
-                    <Col span="5">
-                      <Input
-                        v-model="personInfo.smokeYear"
-                        type="number"
-                        @input="existChildChange('smokeYear', $event)"
-                      >
-                        <span slot="prepend">共</span>
-                        <span slot="append">年</span>
-                      </Input>
-                    </Col>
-                    <Col
-                      span="5"
+                <Row style="margin-top: 15px" v-if="personInfo.sex == '女'">
+                  <FormItem label="月经史">
+                    <Row :gutter="15">
+                      <Col style="width: 225px">
+                        <RadioGroup v-model="personInfo.menstrualHistory">
+                          <Radio label="正常"></Radio>
+                          <Radio label="经期"></Radio>
+                          <Radio label="停经"></Radio>
+                          <Radio label="异常"></Radio>
+                        </RadioGroup>
+                      </Col>
+                      <Col>
+                        <Input
+                          v-model="personInfo.menstrualInfo"
+                          type="text"
+                          v-if="personInfo.menstrualHistory == '异常'"
+                          v-width="292"
+                        />
+                      </Col>
+                    </Row>
+                    <Row
+                      :gutter="20"
+                      style="display: flex; margin-top: 20px"
                       v-if="
+                        isMenstrualHistory ||
                         this.physicalType == '放射体检' ||
                         (personInfo.hazardFactors &&
                           (personInfo.hazardFactors.indexOf('160002') > -1 ||
@@ -667,335 +259,542 @@
                             personInfo.hazardFactors.indexOf('160999') > -1))
                       "
                     >
+                      <Col span="4">
+                        <Input type="number" v-model="personInfo.menarche">
+                          <span slot="prepend">初潮</span>
+                          <span slot="append">岁</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input type="number" v-model="personInfo.period">
+                          <span slot="prepend">经期</span>
+                          <span slot="append">天</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input type="number" v-model="personInfo.cycle">
+                          <span slot="prepend">周期</span>
+                          <span slot="append">天</span>
+                        </Input>
+                      </Col>
+                      <Col span="5">
+                        <Input
+                          type="number"
+                          v-model="personInfo.lastMenstruation"
+                        >
+                          <span slot="prepend">停经年龄</span>
+                          <span slot="append">岁</span>
+                        </Input>
+                      </Col>
+                    </Row>
+                  </FormItem>
+                </Row>
+                <Row
+                  v-if="
+                    personInfo.physicalType == '放射体检' ||
+                    (personInfo.hazardFactors &&
+                      (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                        personInfo.hazardFactors.indexOf('160501') > -1 ||
+                        personInfo.hazardFactors.indexOf('160502') > -1 ||
+                        personInfo.hazardFactors.indexOf('160503') > -1 ||
+                        personInfo.hazardFactors.indexOf('160504') > -1 ||
+                        personInfo.hazardFactors.indexOf('160506') > -1 ||
+                        personInfo.hazardFactors.indexOf('160507') > -1 ||
+                        personInfo.hazardFactors.indexOf('160999') > -1))
+                  "
+                >
+                  <FormItem label="婚姻史">
+                    <Row style="display: flex; margin-bottom: 24px">
+                      <div>结婚日期：</div>
+                      <DatePicker
+                        type="date"
+                        placeholder="请选择"
+                        style="width: 223px"
+                        transfer
+                        v-model="personInfo.marriageDate"
+                        @on-change="marriageDateChange"
+                        format="yyyy-MM-dd"
+                      />
+                    </Row>
+                    <Row style="margin-bottom: 24px; display: flex">
+                      <div>配偶接触放射线情况：</div>
                       <Input
-                        v-model="personInfo.quitSomking"
-                        type="number"
-                        @input="existChildChange('quitSomking', $event)"
-                      >
-                        <span slot="prepend">戒烟</span>
-                        <span slot="append">年</span>
-                      </Input>
-                    </Col>
-                  </Row>
-                  <Row :gutter="15">
-                    <Col style="width: 225px">
-                      <RadioGroup v-model="personInfo.drinkState">
-                        <Radio label="不饮酒"></Radio>
-                        <Radio label="偶饮酒"></Radio>
-                        <Radio label="经常饮"></Radio>
-                      </RadioGroup>
-                    </Col>
-                    <Col span="5">
+                        v-model="personInfo.spouseRadiationSituation"
+                        maxlength="50"
+                        type="text"
+                        v-width="500"
+                      />
+                    </Row>
+                    <Row style="display: flex">
+                      <div>配偶职业及健康状况：</div>
                       <Input
-                        v-model="personInfo.mlEveryDay"
-                        type="number"
-                        @input="existChildChange('mlEveryDay', $event)"
-                      >
-                        <span slot="append">ml/天</span>
-                      </Input>
-                    </Col>
-                    <Col span="5">
-                      <Input
-                        v-model="personInfo.drinkYear"
-                        type="number"
-                        @input="existChildChange('drinkYear', $event)"
-                      >
-                        <span slot="prepend">共</span>
-                        <span slot="append">年</span>
-                      </Input>
-                    </Col>
-                  </Row>
-                </FormItem>
-              </Row>
-              <Row>
-                <FormItem label="出生地">
-                  <v-region
-                    @values="regionChange"
-                    type="group"
-                    :town="true"
-                    style="width: 520px"
-                    transfer
-                    v-model="birthplaceCode"
-                  ></v-region>
-                </FormItem>
-              </Row>
-              <Row>
-                <FormItem label="家族史">
-                  <Col span="24" style="position: relative">
-                    <Button
-                      style="
-                        position: absolute;
-                        right: -4px;
-                        bottom: 1px;
-                        z-index: 8;
+                        v-model="personInfo.spouseHealthSituation"
+                        maxlength="50"
+                        type="text"
+                        v-width="500"
+                      />
+                    </Row>
+                  </FormItem>
+                </Row>
+                <Row v-if="personInfo.sex == '男'">
+                  <FormItem label="生育史">
+                    <Row :gutter="15">
+                      <Col span="4">
+                        <Input
+                          class="sexExisting"
+                          v-model="personInfo.existingChildren"
+                          type="number"
+                          @input="existChildChange('child', $event)"
+                        >
+                          <span slot="prepend">现有子女</span>
+                          <span slot="append">人</span>
+                        </Input>
+                      </Col>
+                    </Row>
+                    <Row
+                      style="margin-top: 24px"
+                      :gutter="15"
+                      v-if="
+                        personInfo.physicalType == '放射体检' ||
+                        (personInfo.hazardFactors &&
+                          (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                            personInfo.hazardFactors.indexOf('160501') > -1 ||
+                            personInfo.hazardFactors.indexOf('160502') > -1 ||
+                            personInfo.hazardFactors.indexOf('160503') > -1 ||
+                            personInfo.hazardFactors.indexOf('160504') > -1 ||
+                            personInfo.hazardFactors.indexOf('160506') > -1 ||
+                            personInfo.hazardFactors.indexOf('160507') > -1 ||
+                            personInfo.hazardFactors.indexOf('160999') > -1))
                       "
-                      type="primary"
-                      @click="handleWordChoose()"
-                      >选
-                    </Button>
-                    <Input
-                      type="textarea"
-                      v-model="personInfo.familyHistory"
-                      placeholder="家庭中有无遗传性疾病、血液病、糖尿病、高血压病、神经精神性疾病、肿瘤以及结核、肝炎等传染性疾病"
-                      :rows="3"
-                      v-width="520"
-                    />
-                  </Col>
-                </FormItem>
-              </Row>
-              <Row
-                style="margin-top: 15px"
-                v-if="
-                  personInfo.physicalType == '放射体检' ||
-                  (personInfo.hazardFactors &&
-                    (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                      personInfo.hazardFactors.indexOf('160501') > -1 ||
-                      personInfo.hazardFactors.indexOf('160502') > -1 ||
-                      personInfo.hazardFactors.indexOf('160503') > -1 ||
-                      personInfo.hazardFactors.indexOf('160504') > -1 ||
-                      personInfo.hazardFactors.indexOf('160506') > -1 ||
-                      personInfo.hazardFactors.indexOf('160507') > -1 ||
-                      personInfo.hazardFactors.indexOf('160999') > -1))
-                "
-              >
-                <Button
-                  type="info"
-                  icon="md-add-circle"
-                  style="margin-bottom: 15px"
-                  @click.native="handleAddClick(1)"
-                  v-if="status == 0"
-                  >新增</Button
-                >
-                <span
-                  style="
-                    font-weight: bold;
-                    color: red;
-                    height: 30px;
-                    line-height: 30px;
+                    >
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.boys"
+                          type="number"
+                          @input="existChildChange('boys', $event)"
+                        >
+                          <span slot="prepend">现有男孩</span>
+                          <span slot="append">人</span>
+                        </Input>
+                      </Col>
+                      <Col span="7" style="display: flex">
+                        <div>出生日期：</div>
+                        <Input
+                          v-model="personInfo.boysBirth"
+                          maxlength="50"
+                          type="text"
+                        />
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.girls"
+                          type="number"
+                          @input="existChildChange('girls', $event)"
+                        >
+                          <span slot="prepend">现有女孩</span>
+                          <span slot="append">人</span>
+                        </Input>
+                      </Col>
+                      <Col span="7" style="display: flex">
+                        <div>出生日期：</div>
+                        <Input
+                          v-model="personInfo.girlsBirth"
+                          maxlength="50"
+                          type="text"
+                        />
+                      </Col>
+                    </Row>
+                  </FormItem>
+                </Row>
+                <Row v-if="personInfo.sex == '女'">
+                  <FormItem label="生育史">
+                    <Row :gutter="15" style="margin-bottom: 24px">
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.existingChildren"
+                          type="number"
+                          @input="existChildChange('child', $event)"
+                        >
+                          <span slot="prepend">现有子女</span>
+                          <span slot="append">人</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.abortion"
+                          type="number"
+                          @input="existChildChange('abortion', $event)"
+                        >
+                          <span slot="prepend">流产</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.premature"
+                          type="number"
+                          @input="existChildChange('premature', $event)"
+                        >
+                          <span slot="prepend">早产</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.death"
+                          type="number"
+                          @input="existChildChange('death', $event)"
+                        >
+                          <span slot="prepend">死亡</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.abnormalFetus"
+                          type="number"
+                          @input="existChildChange('abnormalFetus', $event)"
+                        >
+                          <span slot="prepend">异常胎</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                    </Row>
+                    <Row
+                      :gutter="15"
+                      style="margin-bottom: 24px"
+                      v-if="
+                        personInfo.physicalType == '放射体检' ||
+                        (personInfo.hazardFactors &&
+                          (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                            personInfo.hazardFactors.indexOf('160501') > -1 ||
+                            personInfo.hazardFactors.indexOf('160502') > -1 ||
+                            personInfo.hazardFactors.indexOf('160503') > -1 ||
+                            personInfo.hazardFactors.indexOf('160504') > -1 ||
+                            personInfo.hazardFactors.indexOf('160506') > -1 ||
+                            personInfo.hazardFactors.indexOf('160507') > -1 ||
+                            personInfo.hazardFactors.indexOf('160999') > -1))
+                      "
+                    >
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.pregnancyCount"
+                          type="number"
+                          @input="existChildChange('pregnancyCount', $event)"
+                        >
+                          <span slot="prepend">孕次</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.liveBirth"
+                          type="number"
+                          @input="existChildChange('liveBirth', $event)"
+                        >
+                          <span slot="prepend">活产</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.abortionSmall"
+                          type="number"
+                          @input="existChildChange('abortionSmall', $event)"
+                        >
+                          <span slot="prepend">自然流产</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.multiparous"
+                          type="number"
+                          @input="existChildChange('multiparous', $event)"
+                        >
+                          <span slot="prepend">多胎</span>
+                          <span slot="append">次</span>
+                        </Input>
+                      </Col>
+                      <Col span="7" style="display: flex">
+                        <div>不孕不育原因：</div>
+                        <Input
+                          v-model="personInfo.infertilityReason"
+                          maxlength="50"
+                          type="text"
+                        />
+                      </Col>
+                    </Row>
+                    <Row
+                      :gutter="15"
+                      style="margin-bottom: 24px"
+                      v-if="
+                        personInfo.physicalType == '放射体检' ||
+                        (personInfo.hazardFactors &&
+                          (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                            personInfo.hazardFactors.indexOf('160501') > -1 ||
+                            personInfo.hazardFactors.indexOf('160502') > -1 ||
+                            personInfo.hazardFactors.indexOf('160503') > -1 ||
+                            personInfo.hazardFactors.indexOf('160504') > -1 ||
+                            personInfo.hazardFactors.indexOf('160506') > -1 ||
+                            personInfo.hazardFactors.indexOf('160507') > -1 ||
+                            personInfo.hazardFactors.indexOf('160999') > -1))
+                      "
+                    >
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.boys"
+                          type="number"
+                          @input="existChildChange('boys', $event)"
+                        >
+                          <span slot="prepend">现有男孩</span>
+                          <span slot="append">人</span>
+                        </Input>
+                      </Col>
+                      <Col span="7" style="display: flex">
+                        <div>出生日期：</div>
+                        <Input
+                          v-model="personInfo.boysBirth"
+                          maxlength="50"
+                          type="text"
+                        />
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.girls"
+                          type="number"
+                          @input="existChildChange('girls', $event)"
+                        >
+                          <span slot="prepend">现有女孩</span>
+                          <span slot="append">人</span>
+                        </Input>
+                      </Col>
+                      <Col span="7" style="display: flex">
+                        <div>出生日期：</div>
+                        <Input
+                          v-model="personInfo.girlsBirth"
+                          maxlength="50"
+                          type="text"
+                        />
+                      </Col>
+                    </Row>
+                    <Row
+                      :gutter="15"
+                      v-if="
+                        personInfo.physicalType == '放射体检' ||
+                        (personInfo.hazardFactors &&
+                          (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                            personInfo.hazardFactors.indexOf('160501') > -1 ||
+                            personInfo.hazardFactors.indexOf('160502') > -1 ||
+                            personInfo.hazardFactors.indexOf('160503') > -1 ||
+                            personInfo.hazardFactors.indexOf('160504') > -1 ||
+                            personInfo.hazardFactors.indexOf('160506') > -1 ||
+                            personInfo.hazardFactors.indexOf('160507') > -1 ||
+                            personInfo.hazardFactors.indexOf('160999') > -1))
+                      "
+                    >
+                      <Col span="10" style="display: flex">
+                        <div>子女健康状况：</div>
+                        <Input
+                          v-model="personInfo.childrensHealth"
+                          maxlength="50"
+                          type="text"
+                        />
+                      </Col>
+                    </Row>
+                  </FormItem>
+                </Row>
+                <Row>
+                  <FormItem label="过敏史">
+                    <Row>
+                      <Col style="width: 85px">
+                        <RadioGroup v-model="personInfo.allergies">
+                          <Radio label="无"></Radio>
+                          <Radio label="有"></Radio>
+                        </RadioGroup>
+                      </Col>
+                      <Col>
+                        <Input
+                          v-model="personInfo.allergiesInfo"
+                          type="text"
+                          v-if="personInfo.allergies == '有'"
+                          v-width="433"
+                        />
+                      </Col>
+                    </Row>
+                  </FormItem>
+                </Row>
+                <Row>
+                  <FormItem label="烟酒史">
+                    <Row :gutter="15" style="margin-bottom: 24px">
+                      <Col style="width: 500px">
+                        <RadioGroup v-model="personInfo.smokeState">
+                          <Radio label="1">现在每天吸</Radio>
+                          <Radio label="2">现在吸,但不是每天吸</Radio>
+                          <Radio label="3">过去吸,现在不吸</Radio>
+                          <Radio label="4">从不吸</Radio>
+                        </RadioGroup>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.packageEveryDay"
+                          type="number"
+                          @input="existChildChange('packageEveryDay', $event)"
+                        >
+                          <span slot="append">支每天</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input
+                          v-model="personInfo.smokeYear"
+                          type="number"
+                          @input="existChildChange('smokeYear', $event)"
+                        >
+                          <span slot="prepend">共</span>
+                          <span slot="append">年</span>
+                        </Input>
+                      </Col>
+                      <Col span="4">
+                        <Input v-model="personInfo.smokeMoon" type="number"  @input="existChildChange('smokeMoon',$event)">
+                          <span slot="prepend">共</span>
+                          <span slot="append">月</span>
+                        </Input>
+                      </Col>
+                      <Col
+                        span="5"
+                        v-if="
+                          this.physicalType == '放射体检' ||
+                          (personInfo.hazardFactors &&
+                            (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                              personInfo.hazardFactors.indexOf('160501') > -1 ||
+                              personInfo.hazardFactors.indexOf('160502') > -1 ||
+                              personInfo.hazardFactors.indexOf('160503') > -1 ||
+                              personInfo.hazardFactors.indexOf('160504') > -1 ||
+                              personInfo.hazardFactors.indexOf('160506') > -1 ||
+                              personInfo.hazardFactors.indexOf('160507') > -1 ||
+                              personInfo.hazardFactors.indexOf('160999') > -1))
+                        "
+                      >
+                        <Input
+                          v-model="personInfo.quitSomking"
+                          type="number"
+                          @input="existChildChange('quitSomking', $event)"
+                        >
+                          <span slot="prepend">戒烟</span>
+                          <span slot="append">年</span>
+                        </Input>
+                      </Col>
+                    </Row>
+                    <Row :gutter="15">
+                      <Col style="width: 225px">
+                        <RadioGroup v-model="personInfo.drinkState">
+                          <Radio label="不饮酒"></Radio>
+                          <Radio label="偶饮酒"></Radio>
+                          <Radio label="经常饮"></Radio>
+                        </RadioGroup>
+                      </Col>
+                      <Col span="5">
+                        <Input
+                          v-model="personInfo.mlEveryDay"
+                          type="number"
+                          @input="existChildChange('mlEveryDay', $event)"
+                        >
+                          <span slot="append">ml/天</span>
+                        </Input>
+                      </Col>
+                      <Col span="5">
+                        <Input
+                          v-model="personInfo.drinkYear"
+                          type="number"
+                          @input="existChildChange('drinkYear', $event)"
+                        >
+                          <span slot="prepend">共</span>
+                          <span slot="append">年</span>
+                        </Input>
+                      </Col>
+                    </Row>
+                  </FormItem>
+                </Row>
+                <Row>
+                  <FormItem label="出生地">
+                    <v-region
+                      @values="regionChange"
+                      type="group"
+                      :town="true"
+                      style="width: 520px"
+                      transfer
+                      v-model="birthplaceCode"
+                    ></v-region>
+                  </FormItem>
+                </Row>
+                <Row>
+                  <FormItem label="家族史">
+                    <Col span="24" style="position: relative">
+                      <Button
+                        style="
+                          position: absolute;
+                          right: -4px;
+                          bottom: 1px;
+                          z-index: 8;
+                        "
+                        type="primary"
+                        @click="handleWordChoose()"
+                        >选
+                      </Button>
+                      <Input
+                        type="textarea"
+                        v-model="personInfo.familyHistory"
+                        placeholder="家庭中有无遗传性疾病、血液病、糖尿病、高血压病、神经精神性疾病、肿瘤以及结核、肝炎等传染性疾病"
+                        :rows="3"
+                        v-width="520"
+                      />
+                    </Col>
+                  </FormItem>
+                </Row>
+                <Row
+                  style="margin-top: 15px"
+                  v-if="
+                    personInfo.physicalType == '放射体检' ||
+                    (personInfo.hazardFactors &&
+                      (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                        personInfo.hazardFactors.indexOf('160501') > -1 ||
+                        personInfo.hazardFactors.indexOf('160502') > -1 ||
+                        personInfo.hazardFactors.indexOf('160503') > -1 ||
+                        personInfo.hazardFactors.indexOf('160504') > -1 ||
+                        personInfo.hazardFactors.indexOf('160506') > -1 ||
+                        personInfo.hazardFactors.indexOf('160507') > -1 ||
+                        personInfo.hazardFactors.indexOf('160999') > -1))
                   "
-                  >放射工种职业历史记录</span
                 >
-                <Table
-                  border
-                  :columns="careerHistoryColumns1"
-                  sortable="custom"
-                  :data="careerHistoryData1"
-                  ref="table"
-                  :max-height="250"
-                >
-                  <template slot-scope="{ row, index }" slot="action">
-                    <Button
-                      type="error"
-                      @click="handleDelete(row, index, 1)"
-                      size="small"
-                    >
-                      <Icon type="md-trash"></Icon>
-                      删除
-                    </Button>
-                  </template>
-                </Table>
-              </Row>
-              <Row
-                v-if="
-                  personInfo.physicalType == '职业体检' &&
-                  !(
-                    personInfo.hazardFactors &&
-                    (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                      personInfo.hazardFactors.indexOf('160501') > -1 ||
-                      personInfo.hazardFactors.indexOf('160502') > -1 ||
-                      personInfo.hazardFactors.indexOf('160503') > -1 ||
-                      personInfo.hazardFactors.indexOf('160504') > -1 ||
-                      personInfo.hazardFactors.indexOf('160506') > -1 ||
-                      personInfo.hazardFactors.indexOf('160507') > -1 ||
-                      personInfo.hazardFactors.indexOf('160999') > -1)
-                  )
-                "
-              >
-                <Button
-                  type="info"
-                  icon="md-add-circle"
-                  style="margin-bottom: 15px"
-                  @click.native="handleAddClick(2)"
-                  v-if="status == 0"
-                  >新增</Button
-                >
-                <span
-                  style="
-                    font-weight: bold;
-                    color: red;
-                    height: 30px;
-                    line-height: 30px;
-                  "
-                  >非放射工种职业历史记录</span
-                >
-                <Table
-                  border
-                  :columns="careerHistoryColumns2"
-                  sortable="custom"
-                  :data="careerHistoryData2"
-                  ref="table"
-                >
-                  <template slot-scope="{ row, index }" slot="action">
-                    <Button
-                      type="error"
-                      @click="handleDelete(row, index, 2)"
-                      size="small"
-                    >
-                      <Icon type="md-trash"></Icon>
-                      删除
-                    </Button>
-                  </template>
-                </Table>
-              </Row>
-
-              <info-divider orientation="left">既往患病史</info-divider>
-              <Row>
-                <Button
-                  type="info"
-                  icon="md-add-circle"
-                  @click.native="tableAddItem"
-                  v-if="status == 0"
-                  >新增</Button
-                >
-                <Table
-                  style="margin-top: 16px"
-                  border
-                  :columns="pastMedicalHistoryColumns"
-                  sortable="custom"
-                  :data="personInfo.pastMedicalHistoryData"
-                  ref="table"
-                >
-                  <template slot-scope="{ row, index }" slot="action">
-                    <Button
-                      type="error"
-                      @click="tableDeleteItem(row, index)"
-                      size="small"
-                    >
-                      <Icon type="md-trash"></Icon>
-                      删除
-                    </Button>
-                  </template>
-                </Table>
-                <FormItem
-                  label="其他"
-                  :label-width="40"
-                  style="margin-top: 15px; width: 100%"
-                >
-                  <Input
-                    type="textarea"
-                    v-model="personInfo.pastMedicalHistoryOtherInfo"
-                    :rows="3"
-                  />
-                </FormItem>
-              </Row>
-            </div>
-          </el-tab-pane>
-          <!-- 症状询问 -->
-          <el-tab-pane
-            name="zzxw"
-            label="症状询问"
-            v-if="
-              personInfo.physicalType == '职业体检' &&
-              !(
-                personInfo.hazardFactors &&
-                (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                  personInfo.hazardFactors.indexOf('160501') > -1 ||
-                  personInfo.hazardFactors.indexOf('160502') > -1 ||
-                  personInfo.hazardFactors.indexOf('160503') > -1 ||
-                  personInfo.hazardFactors.indexOf('160504') > -1 ||
-                  personInfo.hazardFactors.indexOf('160506') > -1 ||
-                  personInfo.hazardFactors.indexOf('160507') > -1 ||
-                  personInfo.hazardFactors.indexOf('160999') > -1)
-              )
-            "
-          >
-            <div v-if="tabsValue == 'zzxw'" ref="zzxw" style="height: 100%">
-              <Row style="width: 100%; height: calc(100% - 76px)">
-                <Col span="12" style="height: 100%">
-                  <Table
-                    border
-                    :columns="symptomColumns"
-                    :data="symptomData1"
-                    ref="table"
-                    :row-class-name="rowClassName"
-                    width="100%"
-                    :span-method="handleSpan1"
-                    :height="checkContentHeight - 76"
-                  >
-                  </Table>
-                </Col>
-                <Col span="12" style="height: 100%">
-                  <Table
-                    border
-                    :columns="symptomColumns2"
-                    :data="symptomData2"
-                    ref="table1"
-                    :row-class-name="rowClassName"
-                    width="100%"
-                    :span-method="handleSpan2"
-                    :height="checkContentHeight - 76"
-                  >
-                  </Table>
-                </Col>
-              </Row>
-
-              <div style="margin-top: 10px">
-                <div style="color: red">备注</div>
-                <div style="color: red; text-indent: 25px">
-                  1：无症状以“——”表示；有症状以“+”表示；症状程度：偶有以“±”，较轻以“+”，中等以“++”，明显以“+++”表示
-                </div>
-                <div
-                  style="color: red; text-indent: 25px"
-                  v-if="askProjectData && askProjectData.length > 0"
-                >
-                  2：危害因素对应的主要询问项目为：<span
-                    style="font-size: 16px; font-weight: 600"
-                    >{{ askProjectData.join(",") }}</span
-                  >
-                </div>
-              </div>
-            </div>
-          </el-tab-pane>
-          <!-- 自觉症状 -->
-          <el-tab-pane
-            name="zjzz"
-            label="自觉症状"
-            v-if="
-              personInfo.physicalType == '放射体检' ||
-              (personInfo.hazardFactors &&
-                (personInfo.hazardFactors.indexOf('160002') > -1 ||
-                  personInfo.hazardFactors.indexOf('160501') > -1 ||
-                  personInfo.hazardFactors.indexOf('160502') > -1 ||
-                  personInfo.hazardFactors.indexOf('160503') > -1 ||
-                  personInfo.hazardFactors.indexOf('160504') > -1 ||
-                  personInfo.hazardFactors.indexOf('160506') > -1 ||
-                  personInfo.hazardFactors.indexOf('160507') > -1 ||
-                  personInfo.hazardFactors.indexOf('160999') > -1))
-            "
-          >
-            <div v-if="tabsValue == 'zjzz'" ref="zjzz" style="height: 100%">
-              <Row style="height: calc(100% - 52px)">
-                <Col span="24">
                   <Button
                     type="info"
                     icon="md-add-circle"
                     style="margin-bottom: 15px"
-                    @click.native="symptomDataAdd()"
+                    @click.native="handleAddClick(1)"
                     v-if="status == 0"
                     >新增</Button
                   >
+                  <span
+                    style="
+                      font-weight: bold;
+                      color: red;
+                      height: 30px;
+                      line-height: 30px;
+                    "
+                    >放射工种职业历史记录</span
+                  >
                   <Table
                     border
-                    :columns="symptomFsColumns"
-                    :data="symptomData"
+                    :columns="careerHistoryColumns1"
+                    sortable="custom"
+                    :data="careerHistoryData1"
                     ref="table"
-                    width="100%"
-                    :height="checkContentHeight - 99"
+                    :max-height="250"
                   >
                     <template slot-scope="{ row, index }" slot="action">
                       <Button
                         type="error"
-                        @click="symptomDataDelete(row, index)"
+                        @click="handleDelete(row, index, 1)"
                         size="small"
                       >
                         <Icon type="md-trash"></Icon>
@@ -1003,32 +802,243 @@
                       </Button>
                     </template>
                   </Table>
-                </Col>
-              </Row>
-              <div style="margin-top: 10px">
-                <div style="color: red">备注</div>
-                <div style="color: red; text-indent: 25px">
-                  症状程度：偶有以“±”，较轻以“+”，中等以“++”，明显以“+++”表示
+                </Row>
+                <Row
+                  v-if="
+                    personInfo.physicalType == '职业体检' &&
+                    !(
+                      personInfo.hazardFactors &&
+                      (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                        personInfo.hazardFactors.indexOf('160501') > -1 ||
+                        personInfo.hazardFactors.indexOf('160502') > -1 ||
+                        personInfo.hazardFactors.indexOf('160503') > -1 ||
+                        personInfo.hazardFactors.indexOf('160504') > -1 ||
+                        personInfo.hazardFactors.indexOf('160506') > -1 ||
+                        personInfo.hazardFactors.indexOf('160507') > -1 ||
+                        personInfo.hazardFactors.indexOf('160999') > -1)
+                    )
+                  "
+                >
+                  <Button
+                    type="info"
+                    icon="md-add-circle"
+                    style="margin-bottom: 15px"
+                    @click.native="handleAddClick(2)"
+                    v-if="status == 0"
+                    >新增</Button
+                  >
+                  <span
+                    style="
+                      font-weight: bold;
+                      color: red;
+                      height: 30px;
+                      line-height: 30px;
+                    "
+                    >非放射工种职业历史记录</span
+                  >
+                  <Table
+                    border
+                    :columns="careerHistoryColumns2"
+                    sortable="custom"
+                    :data="careerHistoryData2"
+                    ref="table"
+                  >
+                    <template slot-scope="{ row, index }" slot="action">
+                      <Button
+                        type="error"
+                        @click="handleDelete(row, index, 2)"
+                        size="small"
+                      >
+                        <Icon type="md-trash"></Icon>
+                        删除
+                      </Button>
+                    </template>
+                  </Table>
+                </Row>
+
+                <info-divider orientation="left">既往患病史</info-divider>
+                <Row>
+                  <Button
+                    type="info"
+                    icon="md-add-circle"
+                    @click.native="tableAddItem"
+                    v-if="status == 0"
+                    >新增</Button
+                  >
+                  <Table
+                    style="margin-top: 16px"
+                    border
+                    :columns="pastMedicalHistoryColumns"
+                    sortable="custom"
+                    :data="personInfo.pastMedicalHistoryData"
+                    ref="table"
+                  >
+                    <template slot-scope="{ row, index }" slot="action">
+                      <Button
+                        type="error"
+                        @click="tableDeleteItem(row, index)"
+                        size="small"
+                      >
+                        <Icon type="md-trash"></Icon>
+                        删除
+                      </Button>
+                    </template>
+                  </Table>
+                  <FormItem
+                    label="其他"
+                    :label-width="40"
+                    style="margin-top: 15px; width: 100%"
+                  >
+                    <Input
+                      type="textarea"
+                      v-model="personInfo.pastMedicalHistoryOtherInfo"
+                      :rows="3"
+                    />
+                  </FormItem>
+                </Row>
+              </div>
+            </el-tab-pane>
+            <!--职业 症状询问 -->
+            <el-tab-pane
+              name="zzxw"
+              label="症状询问"
+              v-if="
+                personInfo.physicalType == '职业体检' &&
+                !(
+                  personInfo.hazardFactors &&
+                  (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                    personInfo.hazardFactors.indexOf('160501') > -1 ||
+                    personInfo.hazardFactors.indexOf('160502') > -1 ||
+                    personInfo.hazardFactors.indexOf('160503') > -1 ||
+                    personInfo.hazardFactors.indexOf('160504') > -1 ||
+                    personInfo.hazardFactors.indexOf('160506') > -1 ||
+                    personInfo.hazardFactors.indexOf('160507') > -1 ||
+                    personInfo.hazardFactors.indexOf('160999') > -1)
+                )
+              "
+            >
+              <div v-if="tabsValue == 'zzxw'" ref="zzxw" style="height: 100%">
+                <Row style="width: 100%; height: calc(100% - 76px)">
+                  <Col span="12" style="height: 100%">
+                    <Table
+                      border
+                      :columns="symptomColumns"
+                      :data="symptomData1"
+                      ref="table"
+                      :row-class-name="rowClassName"
+                      width="100%"
+                      :span-method="handleSpan1"
+                      :height="checkContentHeight - 76"
+                    >
+                    </Table>
+                  </Col>
+                  <Col span="12" style="width: 100%; height: 100%">
+                    <Table
+                      border
+                      :columns="symptomColumns2"
+                      :data="symptomData2"
+                      ref="table1"
+                      :row-class-name="rowClassName"
+                      width="100%"
+                      :span-method="handleSpan2"
+                      :height="checkContentHeight - 76"
+                    >
+                    </Table>
+                  </Col>
+                </Row>
+
+                <div style="margin-top: 10px">
+                  <div style="color: red">备注</div>
+                  <div style="color: red; text-indent: 25px">
+                    1：无症状以“——”表示；有症状以“+”表示；症状程度：偶有以“±”，较轻以“+”，中等以“++”，明显以“+++”表示
+                  </div>
+                  <div
+                    style="color: red; text-indent: 25px"
+                    v-if="askProjectData && askProjectData.length > 0"
+                  >
+                    2：危害因素对应的主要询问项目为：<span
+                      style="font-size: 16px; font-weight: 600"
+                      >{{ askProjectData.join(",") }}</span
+                    >
+                  </div>
                 </div>
               </div>
-            </div>
-          </el-tab-pane>
-        </template>
-        <!-- 从业体检 -->
-        <template v-if="personInfo.physicalType == '从业体检'">
-          <!-- 既往病史 -->
-          <el-tab-pane name="jwbs" label="既往病史">
-            <Table
-              :columns="pastMedicalColumns"
-              :data="personInfo.pastMedicalHistoryData"
-              ref="table"
-              :max-height="tableMaxHeight"
-              width="100%"
-              border
+            </el-tab-pane>
+            <!--放射 自觉症状 -->
+            <el-tab-pane
+              name="zjzz"
+              label="自觉症状"
+              v-if="
+                personInfo.physicalType == '放射体检' ||
+                (personInfo.hazardFactors &&
+                  (personInfo.hazardFactors.indexOf('160002') > -1 ||
+                    personInfo.hazardFactors.indexOf('160501') > -1 ||
+                    personInfo.hazardFactors.indexOf('160502') > -1 ||
+                    personInfo.hazardFactors.indexOf('160503') > -1 ||
+                    personInfo.hazardFactors.indexOf('160504') > -1 ||
+                    personInfo.hazardFactors.indexOf('160506') > -1 ||
+                    personInfo.hazardFactors.indexOf('160507') > -1 ||
+                    personInfo.hazardFactors.indexOf('160999') > -1))
+              "
             >
-            </Table>
-          </el-tab-pane>
+              <div v-if="tabsValue == 'zjzz'" ref="zjzz" style="height: 100%">
+                <Row style="height: calc(100% - 52px)">
+                  <Col span="24">
+                    <Button
+                      type="info"
+                      icon="md-add-circle"
+                      style="margin-bottom: 15px"
+                      @click.native="symptomDataAdd()"
+                      v-if="status == 0"
+                      >新增</Button
+                    >
+                    <Table
+                      border
+                      :columns="symptomFsColumns"
+                      :data="symptomData"
+                      ref="table"
+                      width="100%"
+                      :height="checkContentHeight - 99"
+                    >
+                      <template slot-scope="{ row, index }" slot="action">
+                        <Button
+                          type="error"
+                          @click="symptomDataDelete(row, index)"
+                          size="small"
+                        >
+                          <Icon type="md-trash"></Icon>
+                          删除
+                        </Button>
+                      </template>
+                    </Table>
+                  </Col>
+                </Row>
+                <div style="margin-top: 10px">
+                  <div style="color: red">备注</div>
+                  <div style="color: red; text-indent: 25px">
+                    症状程度：偶有以“±”，较轻以“+”，中等以“++”，明显以“+++”表示
+                  </div>
+                </div>
+              </div>
+            </el-tab-pane>
+          </template>
+          <!-- 从业体检 -->
+          <template v-if="personInfo.physicalType == '从业体检'">
+            <!-- 既往病史 -->
+            <el-tab-pane name="jwbs" label="既往病史">
+              <Table
+                :columns="pastMedicalColumns"
+                :data="personInfo.pastMedicalHistoryData"
+                ref="table"
+                :max-height="tableMaxHeight"
+                width="100%"
+                border
+              >
+              </Table>
+            </el-tab-pane>
+          </template>
         </template>
+
 
         <slot name="tabs" activeTab="tabsValue"></slot>
 
@@ -1225,6 +1235,10 @@ export default {
       type: String,
       default: "otherForm",
     },
+    isConsultation:{
+      type: Boolean,
+      default: false,
+    }
   },
   data() {
     return {
@@ -1235,7 +1249,6 @@ export default {
           return date && date.valueOf() > Date.now();
         },
       },
-      tabsValue: "jbxx",
       fsSelectList: [],
       fsDrawerShow: false,
       fsDrawerIndex: 0,
@@ -1291,7 +1304,7 @@ export default {
         education: [
           {
             required: true,
-            message: "文化程度不能为空！",
+            message: "教育程度不能为空！",
             trigger: "blur",
             pattern: /.+/,
           },
@@ -2275,14 +2288,14 @@ export default {
         },
         {
           type: "泌尿生殖系统",
-          projectName: "哮喘",
+          projectName: "尿频",
           code: "10047",
           degree: "——",
           courseTime: "",
         },
         {
           type: "泌尿生殖系统",
-          projectName: "尿频、尿急",
+          projectName: "尿急",
           code: "10048",
           degree: "——",
           courseTime: "",
@@ -2501,7 +2514,6 @@ export default {
           degree: "——",
           courseTime: "",
         },
-
         {
           type: "消化系统",
           projectName: "食欲不振",
@@ -2525,14 +2537,14 @@ export default {
         },
         {
           type: "消化系统",
-          projectName: "腹胀、腹痛",
+          projectName: "腹胀",
           code: "10030",
           degree: "——",
           courseTime: "",
         },
         {
           type: "消化系统",
-          projectName: "腹泻",
+          projectName: "腹痛",
           code: "10031",
           degree: "——",
           courseTime: "",
@@ -2559,8 +2571,39 @@ export default {
           courseTime: "",
         },
         {
+          type: "皮肤及附属器",
+          projectName: "色素脱失或沉着",
+          code: "10079",
+          degree: "——",
+          courseTime: ""
+        },
+
+        {
+          type: "皮肤及附属器",
+          projectName: "出血点(斑)",
+          code: "10081",
+          degree: "——",
+          courseTime: ""
+        },
+
+        {
+          type: "皮肤及附属器",
+          projectName: "赘生物",
+          code: "10082",
+          degree: "——",
+          courseTime: ""
+        },
+
+        {
+          type: "皮肤及附属器",
+          projectName: "水疱或大疱",
+          code: "10083",
+          degree: "——",
+          courseTime: ""
+        },
+        {
           type: "其他",
-          projectName: "",
+          projectName: "无",
           code: "10086",
           degree: "——",
           courseTime: "",
@@ -2972,16 +3015,56 @@ export default {
     physicalType() {
       return this.$store.state.theme.theme.physicalType;
     },
+    // 是否是问诊科
+    isConsultationFun() {
+      const roles = JSON.parse(localStorage.getItem("roles"));
+
+      return Array.isArray(roles) ? roles.some((i) => "问诊科" === i) : false;
+    },
+    tabsValue: {
+      get() {
+        const { physicalType } = this.personInfo;
+
+        switch (true) {
+          case this.model !== "":
+            return this.model;
+
+          case ["职业体检", "放射体检"].some((t) => physicalType === t):
+            // 展示基本信息
+           return "jbxx";
+
+          case physicalType === "从业体检":
+            // 展示既往病史
+            return"jwbs";
+
+          default:
+            return ""
+        }
+      },
+      set(val, oldVal) {
+        this.$emit("update:model", val);
+
+        if (observeTabs.some((i) => oldVal === i)) {
+          const oldDom = this.$refs[oldVal];
+
+          if (oldDom) {
+            this.resizeObserver?.unobserve(oldDom);
+          }
+        }
+
+        if (observeTabs.some((i) => val === i)) {
+          this.$nextTick(() => {
+            this.observeCheckContent(this.$refs[val]);
+          });
+        }
+      }
+    }
   },
   watch: {
     personInfo: {
       handler(val, oldName) {
-        const parseTime =
-          Date.parse(val.wzCheckTime) +
-          new Date().getTimezoneOffset() * 60 * 1000;
-
         Object.assign(val, {
-          wzCheckTime: new Date(isNaN(parseTime) ? Date.now() : parseTime),
+          wzCheckTime: this.$utils.formatDate(val.wzCheckTime ?? new Date()),
         });
 
         if (val.id) {
@@ -3010,7 +3093,7 @@ export default {
         }
         if (this.personInfo.physicalType == "从业体检") {
           if (this.personInfo.id) {
-            if (this.personInfo.pastMedicalHistoryData.length == 0) {
+            if (!this.personInfo.pastMedicalHistoryData?.length) {
               this.personInfo.pastMedicalHistoryData = [
                 {
                   diseaseName: "肝炎",
@@ -3042,6 +3125,18 @@ export default {
                   diseaseDate: null,
                   personId: this.personInfo.id,
                 },
+                {
+                  diseaseName: '痢疾',
+                  yesOrNoSick: '无',
+                  diseaseDate: null,
+                  personId: this.personInfo.id
+                },
+                {
+                  diseaseName: '霍乱',
+                  yesOrNoSick: '无',
+                  diseaseDate: null,
+                  personId: this.personInfo.id
+                }
               ];
             }
           } else {
@@ -3282,14 +3377,14 @@ export default {
             },
             {
               type: "泌尿生殖系统",
-              projectName: "哮喘",
+              projectName: "尿频",
               code: "10047",
               degree: "——",
               courseTime: "",
             },
             {
               type: "泌尿生殖系统",
-              projectName: "尿频、尿急",
+              projectName: "尿急",
               code: "10048",
               degree: "——",
               courseTime: "",
@@ -3532,14 +3627,14 @@ export default {
             },
             {
               type: "消化系统",
-              projectName: "腹胀、腹痛",
+              projectName: "腹胀",
               code: "10030",
               degree: "——",
               courseTime: "",
             },
             {
               type: "消化系统",
-              projectName: "腹泻",
+              projectName: "腹痛",
               code: "10031",
               degree: "——",
               courseTime: "",
@@ -3566,8 +3661,40 @@ export default {
               courseTime: "",
             },
             {
+              type: "皮肤及附属器",
+              projectName: "色素脱失或沉着",
+              code: "10079",
+              degree: "——",
+              courseTime: ""
+            },
+
+            {
+              type: "皮肤及附属器",
+              projectName: "出血点(斑)",
+              code: "10081",
+              degree: "——",
+              courseTime: ""
+            },
+
+            {
+              type: "皮肤及附属器",
+              projectName: "赘生物",
+              code: "10082",
+              degree: "——",
+              courseTime: ""
+            },
+
+            {
+              type: "皮肤及附属器",
+              projectName: "水疱或大疱",
+              code: "10083",
+              degree: "——",
+              courseTime: ""
+            },
+            {
               type: "其他",
-              projectName: "无",
+              projectName: "其他",
+              code: "10083",
               degree: "——",
               courseTime: "",
             },
@@ -3645,7 +3772,7 @@ export default {
                 workTypeText: workTypeText,
                 hazardFactorsCode: this.personInfo.hazardFactors,
                 hazardFactorsText: this.personInfo.hazardFactorsText,
-                protectiveMeasures: "有",
+                protectiveMeasures: "",
                 contactTime: "48小时/周",
                 personId: this.personInfo.id,
                 department: this.personInfo.department, //车间(部门)
@@ -3679,7 +3806,22 @@ export default {
           if (this.personInfo.smokeState) {
             this.personInfo.smokeState = this.personInfo.smokeState;
           } else {
-            this.personInfo.smokeState = "不吸烟";
+            this.personInfo.smokeState = "4";
+          }
+          if (this.personInfo.smokeMoon) {
+            this.personInfo.smokeMoon = this.personInfo.smokeMoon;
+          } else {
+            this.personInfo.smokeMoon = 0;
+          }
+          if (this.personInfo.smokeYear) {
+            this.personInfo.smokeYear = this.personInfo.smokeYear;
+          } else {
+            this.personInfo.smokeYear = 0;
+          }
+          if (this.personInfo.packageEveryDay) {
+            this.personInfo.packageEveryDay = this.personInfo.packageEveryDay;
+          } else {
+            this.personInfo.packageEveryDay = 0;
           }
           if (this.personInfo.drinkState) {
             this.personInfo.drinkState = this.personInfo.drinkState;
@@ -3689,42 +3831,6 @@ export default {
         }
       },
       immediate: true,
-    },
-    tabsValue(val, oldVal) {
-      this.$emit("update:model", val);
-
-      if (observeTabs.some((i) => oldVal === i)) {
-        const oldDom = this.$refs[oldVal];
-
-        if (oldDom) {
-          this.resizeObserver?.unobserve(oldDom);
-        }
-      }
-
-      if (observeTabs.some((i) => val === i)) {
-        this.$nextTick(() => {
-          this.observeCheckContent(this.$refs[val]);
-        });
-      }
-    },
-    model(val) {
-      if (this.tabsValue === val) return;
-
-      const { physicalType } = this.personInfo;
-
-      switch (true) {
-        case val !== "":
-          this.tabsValue = val;
-          break;
-        case ["职业体检", "放射体检"].some((t) => physicalType === t):
-          // 展示基本信息
-          this.tabsValue = "jbxx";
-          break;
-        case physicalType === "从业体检":
-          // 展示既往病史
-          this.tabsValue = "jwbs";
-          break;
-      }
     },
   },
   mounted() {
@@ -3912,6 +4018,18 @@ export default {
           });
         } else {
           this.personInfo.quitSomking = e;
+        }
+      }else if (type == "smokeMoon") {
+        if (e <= 0) {
+          this.$nextTick(() => {
+            this.personInfo.smokeMoon = 0;
+          });
+        } else {
+          if (e>11){
+            this.$Message.error("请输入小于11的数字")
+          }else{
+            this.personInfo.smokeMoon = e;
+          }
         }
       }
     },
@@ -4109,7 +4227,7 @@ export default {
           this.careerHistoryData1.push({
             type: 1,
             startDate: e,
-            endDate: formatDate(new Date(), "yyyy-MM-dd"),
+            endDate: formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"),
             workUnit: this.personInfo.unitName,
             workTypeCode: this.personInfo.workTypeCode,
             workTypeText: workTypeText,
@@ -4128,7 +4246,7 @@ export default {
     //结婚日期改变
     marriageDateChange(e) {
       if (e) {
-        this.personInfo.marriageDate = formatDate(e, "yyyy-MM-dd");
+        this.personInfo.marriageDate = formatDate(e, "yyyy-MM-dd HH:mm:ss");
         if (
           this.personInfo.marriageDate &&
           this.personInfo.marriageDate.toString().trim().length > 0
@@ -4186,17 +4304,22 @@ export default {
           rowspan: 3,
           colspan: 1,
         };
-      } else if (rowIndex === 23 && columnIndex === 0) {
+      }  else if (rowIndex === 23 && columnIndex === 0) {
         return {
           rowspan: 8,
           colspan: 1,
         };
-      } else if (rowIndex === 31 && columnIndex === 0) {
+      }else if (rowIndex === 31 && columnIndex === 0) {
         return {
-          rowspan: 1,
+          rowspan: 4,
           colspan: 1,
         };
-      } else if (columnIndex === 0) {
+      }else if (rowIndex === 35 && columnIndex === 0) {
+        return {
+          rowspan: 1,
+          colspan: 1
+        }
+      }else if (columnIndex === 0) {
         return {
           rowspan: 0,
           colspan: 0,
@@ -4204,6 +4327,17 @@ export default {
       }
     },
     handelSubmit(callback) {
+      //效验项目检查时间不能大于登记时间
+      if (this.personInfo.wzCheckTime && this.personInfo.registDate){
+        let data = formatDate(
+            this.personInfo.wzCheckTime,
+            "yyyy-MM-dd HH:mm:ss"
+        );
+        if (Date.parse(data)  < Date.parse(this.personInfo.registDate)){
+          this.$Message.error('项目检查时间不能小于登记时间！！！');
+          return;
+        }
+      }
       //当前时间
       let nowDate = formatDate(new Date(), "yyyy-MM-dd");
       this.$refs["otherForm"].validate((valid) => {
@@ -4264,6 +4398,33 @@ export default {
             ) {
               this.$Message.error("接害开始时间不能为空");
               return;
+            }
+            if (this.personInfo && this.personInfo.exposureStartDate){
+              this.personInfo.exposureStartDate = formatDate(this.personInfo.exposureStartDate,"yyyy-MM-dd HH:mm:ss")
+            }
+            if (this.careerHistoryData2){
+              for (let i = 0; i < this.careerHistoryData2.length ; i++) {
+                this.careerHistoryData2[i].startDate = formatDate(this.careerHistoryData2[i].startDate,"yyyy-MM-dd HH:mm:ss")
+                this.careerHistoryData2[i].endDate = formatDate(this.careerHistoryData2[i].endDate,"yyyy-MM-dd HH:mm:ss")
+              }
+            }
+
+            if (this.careerHistoryData1){
+              for (let i = 0; i < this.careerHistoryData1.length ; i++) {
+                this.careerHistoryData1[i].startDate = formatDate(this.careerHistoryData1[i].startDate,"yyyy-MM-dd HH:mm:ss")
+                this.careerHistoryData1[i].endDate = formatDate(this.careerHistoryData1[i].endDate,"yyyy-MM-dd HH:mm:ss")
+              }
+            }
+            if (this.$hospitalName && this.$hospitalName.SmokingStatus && this.personInfo.smokeState && this.personInfo.smokeState != 4){
+              let status = this.$hospitalName.SmokingStatus[this.personInfo.smokeState]
+              if (this.personInfo.packageEveryDay == 0){
+                this.$Message.error("吸烟状态为:" + status + "时,吸烟支数不能为零！！！");
+                return;
+              }
+              if (this.personInfo.smokeMoon + this.personInfo.smokeYear == 0){
+                this.$Message.error("吸烟状态为:" + status + "时,吸烟总月数不能为零！！！");
+                return;
+              }
             }
           }
           this.loading = true;

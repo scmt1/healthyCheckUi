@@ -83,7 +83,8 @@ export default {
             if (this.physicalType == '职业体检') {
                 oA.href = "/excel/职业体检导入模板.xlsx";
             } else if (this.physicalType == '健康体检') {
-                oA.href = "/excel/健康体检导入模板.xlsx";
+                // oA.href = "/excel/健康体检导入模板.xlsx";
+                oA.href = "/excel/健康体检人员导入模板.xlsx";
             } else if (this.physicalType == '放射体检') {
                 oA.href = "/excel/放射体检导入模板.xlsx";
             }

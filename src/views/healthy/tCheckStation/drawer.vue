@@ -262,7 +262,7 @@
                         minWidth: 120,
                         ellipsis: true,
                         tooltip: true,
-                        key: 'content',
+                        key: this.$hospitalName.isUserOfficeTerm?'content':'name',
                         sortable: false
                     },
                     {
@@ -285,7 +285,7 @@
                         minWidth: 120,
                         ellipsis: true,
                         tooltip: true,
-                        key: 'name',
+                        key: this.$hospitalName.isUserOfficeTerm?'content':'name',
                         sortable: false
                     }/*,
                     {

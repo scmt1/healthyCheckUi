@@ -437,6 +437,14 @@
     .ivu-spin-fix .ivu-spin-main {
       top: 30%;
     }
+
+    .pacsImgs {
+      width: 100%;
+      padding: 0 10%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
   }
 </style>
 <template>
@@ -494,7 +502,7 @@
               <Input v-model="groupPersonSearchForm.personName" placeholder="请输入姓名" @on-clear="inputSearchChange('')"
                      @keypress.native.enter="inputSearchChange" style="margin-bottom: 10px;" clearable/>
               <Input v-model="groupPersonSearchForm.testNum" placeholder="请输入体检编号" @on-clear="inputSearchChange('')"
-                     @keypress.native.enter="inputSearchChange" style="margin-bottom: 10px;" clearable v-if="drop"></Input>
+                     @keypress.native.enter="inputSearchChange" @on-change="inputSearchChange" style="margin-bottom: 10px;" clearable v-if="drop"></Input>
               <Input v-model="groupPersonSearchForm.dept" placeholder="请输入单位名称" @on-clear="inputSearchChange('')"
                      @keypress.native.enter="inputSearchChange" style="margin-bottom: 10px;" clearable v-if="drop"></Input>
               <Button type="primary" @click="inputSearchChange" size="small">查询</Button>
@@ -638,7 +646,7 @@
                   </Col>
                   <Col :span="6" v-if="(personInfo.physical_type || personInfo.physicalType) == '健康体检'">
                     <FormItem label="订单类型">
-                      {{ personInfo.oldGroupId || personInfo.old_group_id ? '团单' : '个单' }}
+                      {{ personInfo.sporadic_physical || personInfo.sporadicPhysical == 0 ? '团单' : '个单' }}
                     </FormItem>
                   </Col>
                 </Row>
@@ -753,8 +761,8 @@
                 <div v-if="item.id == tabsValue">
                   <div v-if="item.isFile=='是'">
                     <Row style="height: 363px;border: 1px solid #DCDEE2;border-top: 0;overflow: hidden;">
-                      <Col span="24" style="justify-content: center;align-items: center;">
-                        <div>
+                      <Col span="24" style="height: 100%; display: flex; flex-direction: column; align-items: center; overflow-y: auto">
+                        <div style="width: 100%; flex-shrink: 0">
                           <Table :loading="loading"
                                  border
                                  :key="Math.random()"
@@ -765,9 +773,9 @@
                           </Table>
                         </div>
                         <div v-viewer="{movable: false,zIndex:7000}"
-                             style="height: 80%;width: 100%;display: flex;justify-content: center;align-items: center;">
+                            class="pacsImgs">
                           <img v-for="(item,index) in pacsData" :key="index" :src="item"
-                               style="border:1px dashed #ccc;margin-right:20px;width: 25vw;height: 27vh;">
+                               style="border:1px dashed #ccc;margin-right:20px;width: 80px;height: 80px;">
                         </div>
                       </Col>
                     </Row>
@@ -854,7 +862,7 @@
                                   @click="uploadImageClick(item.officeId)">
                             上传图片
                           </Button>
-                          <Button v-if="item.name.indexOf('测听') > -1 && isShowCalculationButton"
+                          <Button v-if="item.name.indexOf('纯音') > -1 && isShowCalculationButton"
                                   type="primary"
                                   :loading="syncLoading"
                                   @click="calculation">计算偏移值
@@ -1103,6 +1111,7 @@
       },
       //危机值
       handleCrisisData(item) {
+          if (!item.departResult.diagnoseSum || item.officeId == "186"){
         let diagnoseTipNow = "";
         //展示加权值到小结
         if(item && item.name && item.name.indexOf("纯音")>-1){
@@ -1335,7 +1344,8 @@
             }
           }
         }
-      },
+      }
+          },
       //体检小结变化
       diagnoseSumChange(item){
         //心电图同步体检小结到影像所见
@@ -1345,7 +1355,10 @@
         //若明细项为空则自动将小结填充过去
         if (item.isFile == '是') {
           this.data.forEach(i => {
+            if (i.departItemResults &&(i.officeId==204||i.officeId==194)){
             if(i.departItemResults && !i.departItemResults.result) {
+              i.departItemResults.result = item.departResult.diagnoseSum;
+            }}else {
               i.departItemResults.result = item.departResult.diagnoseSum;
             }
           });
@@ -1740,9 +1753,14 @@
           if (!tab.departResult) {
             tab.departResult.checkDoc = this.doctor;
           }
-          this.personInfo.pacsData = this.pacsData;
-          this.personInfo.groupItems = tab;
-          this.personInfo.baseProject = this.data;
+          const viewData = {
+            pacsData: this.pacsData,
+            groupItems: tab,
+            baseProject: this.data,
+          }
+          Object.entries(viewData).forEach(([k, value]) => {
+            this.$set(this.personInfo, k, value)
+          })
         }
       },
       //row换颜色
@@ -1850,7 +1868,7 @@
         }
         if (!this.$hospitalName.queryTimeChange){
           if(searchForm.startDate == null||searchForm.startDate .trim().length==0){
-            searchForm.startDate = "0000-00-00 00:00:00"
+            searchForm.startDate = "1971-01-01 00:00:00"
           }
           if(searchForm.endDate == null||searchForm.endDate .trim().length==0){
             let endTime = getDataString(new Date);
@@ -2079,6 +2097,32 @@
                     createId:this.dockerId,
                   };
                 }
+                
+                // 默认DR室默认值
+                if (this.$hospitalName.generateDRConclusion && `${i.officeName}`.includes("DR室")) {
+                  Object.assign(i.departResult, {
+                    diagnoseTip: i.departResult.diagnoseTip || "双侧胸廓对称。双肺透光度基本一致，双肺肺纹理分布清晰自然，肺野内未见渗出及占位等异常影像。两肺门结构清晰;心影形态、大小未见明显异常。双隔面光滑，双侧肋隔角锐利。双侧肋骨、胸骨、胸椎未见异常影像。",
+                    diagnoseSum: i.departResult.diagnoseSum || "胸部未见异常影像"
+                  })
+                }
+                if (_this.$hospitalName.radioGraph && _this.$hospitalName.radioGraph.length > 0) {
+                  let radioGraph = _this.$hospitalName.radioGraph;
+                  let projectName = radioGraph.filter(aa => aa.projectName.includes(i.name));
+                  if (projectName != null && projectName.length > 0) {
+                    Object.assign(i.departResult, {
+                      diagnoseTip:  i.departResult.diagnoseTip|| projectName[0].diagnoseTip,
+                      diagnoseSum:  i.departResult.diagnoseSum||projectName[0].diagnoseSum
+                    })
+                  } else {
+                    projectName = radioGraph.filter(aa => aa.officeId == i.officeId);
+                    if (projectName != null && projectName.length > 0){
+                      Object.assign(i.departResult, {
+                        diagnoseTip:  i.departResult.diagnoseTip || projectName[0].diagnoseTip,
+                        diagnoseSum:  i.departResult.diagnoseSum || projectName[0].diagnoseSum
+                      })
+                    }
+                  }
+                }
               })
 
               //分组项目
@@ -2294,6 +2338,18 @@
           this.$Message.info('当前人员已总检，如要修改，请先退回到待总检状态！');
           return;
         }
+        //项目检查时间不能大于登记时间判断
+        let checkData = this.tabsArr.find((i) => i.id == this.tabsValue);
+        if (checkData && checkData.departResult.checkDate && this.personInfo.regist_date){
+          let data = formatDate(
+              checkData.departResult.checkDate,
+              "yyyy-MM-dd HH:mm:ss"
+          );
+          if (Date.parse(data) < Date.parse(this.personInfo.regist_date)){
+            this.$Message.error('项目检查时间不能小于登记时间！！！');
+            return;
+          }
+        }
 
         //tab 当前选中组合项目
         let tab = this.tabsArr.find(i => i.id == this.tabsValue);
@@ -2435,6 +2491,18 @@
             i.departItemResults.orderGroupItemId = this.tabsValue;
             i.departItemResults.diagnoseSum = tab.departResult.diagnoseSum.trim();
           }
+          if (i.departItemResults && i.departItemResults.scope && i.departItemResults.scope.indexOf("-")>-1){
+            if (i.departItemResults.scope.indexOf("--") > -1){
+              i.departItemResults.scope.replaceAll("--","-");
+            }
+            if (i.departItemResults.scope.split("-").length > 2){
+              this.$set(i.departItemResults, 'minimumValue', "-" + i.departItemResults.scope.split ("-")[1]);
+              this.$set(i.departItemResults, 'maximumValue', i.departItemResults.scope.split ("-")[2]);
+            }else {
+              this.$set(i.departItemResults, 'minimumValue', i.departItemResults.scope.split ("-")[0]);
+              this.$set(i.departItemResults, 'maximumValue', i.departItemResults.scope.split ("-")[1]);
+            }
+          }
         });
 
         if (tab.isFile == '是') {
@@ -2470,6 +2538,7 @@
                   this.saveLoading = false;
                   return;
                 }
+
 
                 form.groupResult = JSON.stringify(tab);
                 form.groupItemResult = JSON.stringify(this.data);
@@ -3686,7 +3755,9 @@
                         this.$set(this.data[params.index].departItemResults, 'result', v);
 
                         let tab = this.tabsArr.find(i => i.id == this.tabsValue);
-                        /*this.$set(tab.departResult, "diagnoseTip", v);*/
+                        /*  if (tab!=null && tab.name.indexOf("心电图")>-1){
+                                               this.$set(tab.departResult, "diagnoseTip", v);
+                                             };*/
 
                         let ret = this.setResult(params.row.criticals, v);
                         if (ret.flag == "-") {
@@ -4397,34 +4468,46 @@
             if(direction&&direction[0].innerHTML=="Right"){
               try{
                 let size=countrys[i].getElementsByTagName('IntensityUT');
+                let length = countrys[i].getElementsByTagName("IntensityMT");
+                let status = countrys[i].getElementsByTagName("StatusMT");
                 let number=countrys[i].getElementsByTagName('Frequency');
-                for(var j=0;j<size.length; j++){
+                for(let j=0;j<size.length; j++){
+                  let index = size[j].innerHTML;
+                  if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                    index = length[j].innerHTML
+                  }
                   let value={
                     "revisionValue":0,
-                    "measuredValue":Number(size[j].innerHTML),
+                    "measuredValue":Number(index),
                     "frequency":number[j].innerHTML
                   }
                   right.value.push(value);
                 }
               }catch(err){
-
+                console.log(err)
               }
 
             }else{
 
               try{
                 let size=countrys[i].getElementsByTagName('IntensityUT');
+                let length = countrys[i].getElementsByTagName("IntensityMT");
+                let status = countrys[i].getElementsByTagName("StatusMT");
                 let number=countrys[i].getElementsByTagName('Frequency');
-                for(var j=0;j<size.length; j++){
+                for(let j=0;j<size.length; j++){
+                  let index = size[j].innerHTML;
+                  if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                    index = length[j].innerHTML
+                  }
                   let value={
                     "revisionValue":0,
-                    "measuredValue":Number(size[j].innerHTML),
+                    "measuredValue":Number(index),
                     "frequency":number[j].innerHTML
                   }
                   left.value.push(value);
                 }
               }catch(err){
-
+                console.log(err)
               }
 
             }
@@ -4433,33 +4516,45 @@
 
               try{
                 let size=countrys[i].getElementsByTagName('IntensityUT');
+                let length = countrys[i].getElementsByTagName("IntensityMT");
+                let status = countrys[i].getElementsByTagName("StatusMT");
                 let number=countrys[i].getElementsByTagName('Frequency');
-                for(var j=0;j<size.length; j++){
+                for(let j=0;j<size.length; j++){
+                  let index = size[j].innerHTML;
+                  if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                    index = length[j].innerHTML
+                  }
                   let value={
                     "revisionValue":0,
-                    "measuredValue":Number(size[j].innerHTML),
+                    "measuredValue":Number(index),
                     "frequency":number[j].innerHTML
                   }
                   gright.value.push(value)
                 }
               }catch(err){
-
+                console.log(err)
               }
 
             }else{
               try{
                 let size=countrys[i].getElementsByTagName('IntensityUT');
+                let length = countrys[i].getElementsByTagName("IntensityMT");
+                let status = countrys[i].getElementsByTagName("StatusMT");
                 let number=countrys[i].getElementsByTagName('Frequency');
-                for(var j=0;j<size.length; j++){
+                for(let j=0;j<size.length; j++){
+                  let index = size[j].innerHTML;
+                  if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                    index = length[j].innerHTML
+                  }
                   let value={
                     "revisionValue":0,
-                    "measuredValue":Number(size[j].innerHTML),
+                    "measuredValue":Number(index),
                     "frequency":number[j].innerHTML
                   }
                   gleft.value.push(value);
                 }
               }catch(err){
-
+                console.log(err)
               }
 
             }
@@ -4618,11 +4713,7 @@
                   isRync = true;
                   parse = parse.filter(item => item.type == 'image');
                   this.pacsData = [];
-                  parse.forEach(item => {
-                    if (this.pacsData.length < 2) {
-                      this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
-                    }
-                  });
+                  this.pacsData = parse.map(i => `${ i.imgPath.indexOf("tempfile") > -1 ? util.nginxUrl : "" }/${ i.imgPath }`)
                 } else {
                   if(flagTC){//麦力听数据解析
                     isRync = true;
@@ -4758,6 +4849,7 @@
                               parse[i].value.forEach(j => {
                                 if(i > 2){
                                   if (('gl' + j.frequency) == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result = Number(j.measuredValue) - Number(r);
                                     item.departItemResults.deleteId = Number(j.measuredValue);
@@ -4783,6 +4875,7 @@
                                   }
                                 }else{
                                   if (('l' + j.frequency) == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result = Number(j.measuredValue) - Number(r);
                                     item.departItemResults.deleteId = Number(j.measuredValue);
@@ -4812,6 +4905,7 @@
                               parse[i].value.forEach(j => {
                                 if(i > 2){
                                   if (('gr' + j.frequency) == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result = Number(j.measuredValue) - Number(r);
                                     item.departItemResults.deleteId = Number(j.measuredValue);
@@ -4838,6 +4932,7 @@
                                   }
                                 }else {
                                   if (('r' + j.frequency) == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result = Number(j.measuredValue) - Number(r);
                                     item.departItemResults.deleteId = Number(j.measuredValue);
@@ -4954,22 +5049,15 @@
                       }
                     });
                   }
-                  if (tab.portfolioProjectId == "1479" && parse && parse.length>0) {//肺功能测试曲线
-                    parse = parse.filter(item => item.type && (item.type == 'image'||item.type == 'item'));
-                    _this.pacsData = [];
-                    parse.forEach(item => {
-                      if (_this.pacsData.length <= 2) {
-                        _this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
-                      }
-                    });
-                  }
                   if (parse && parse.length>0 && isRync) {
                     this.$Message.success("同步成功！");
-                  }
-                  else {
+                  } else {
                     this.$Message.error("同步失败！");
                   }
-
+                  if (tab.portfolioProjectId == "1479" && parse && parse.length>0) {//肺功能测试曲线
+                    const filteredParse = parse.filter(item => item.type && (item.type == 'image'));
+                    _this.pacsData = filteredParse.slice(0,2).map(i => `${util.nginxUrl}/${i.imgPath}`);
+                  }
                   if (tab.officeId == "202") {
                     this.calculateAverage();
                   }
@@ -5048,15 +5136,16 @@
                 if ('是' == tab.isFile) {
                   parse = parse.filter(item => item.type == 'image');
                   this.pacsData = [];
-                  parse.forEach(item => {
-                    if (this.pacsData.length < 2) {
-                      if(item.imgPath && item.imgPath.indexOf("tempfile")>-1){
-                        this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
-                      }else{
-                        this.pacsData.push("/" + item.imgPath);
-                      }
-                    }
-                  });
+                  // parse.forEach(item => {
+                  //   if (this.pacsData.length < 2) {
+                  //     if(item.imgPath && item.imgPath.indexOf("tempfile")>-1){
+                  //       this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
+                  //     }else{
+                  //       this.pacsData.push("/" + item.imgPath);
+                  //     }
+                  //   }
+                  // });
+                  this.pacsData = parse.map(i => `${ i.imgPath.indexOf("tempfile") > -1 ? util.nginxUrl : "" }/${ i.imgPath }`)
                   if (this.pacsData && this.pacsData.length > 0) {
                     this.$Message.success("同步成功！");
                   }
@@ -5354,18 +5443,18 @@
                     break;
                   }
                   let items = null;
-                  if(proTypeItem[factors] && proTypeItem[factors][work]){
-                    items = proTypeItem[factors][work];
+                  if(proTypeItem[factors] && proTypeItem[factors][work.trim()]){
+                    items = proTypeItem[factors][work.trim()];
 
                   }
 
                   else  if(factors.indexOf("粉尘")>-1||factors.indexOf("烟尘")>-1){
                     if(proTypeItem["其他无机粉尘"] && proTypeItem["其他无机粉尘"].items && proTypeItem["有机粉尘"] ){
                       if(proTypeItem["其他无机粉尘"].items.indexOf(factors)>-1){
-                        items = proTypeItem["其他无机粉尘"][work];
+                        items = proTypeItem["其他无机粉尘"][work.trim()];
                       }
                       else{
-                        items = proTypeItem["有机粉尘"][work];
+                        items = proTypeItem["有机粉尘"][work.trim()];
                       }
                     }
 
@@ -5408,6 +5497,13 @@
           }
         }
       },
+
+      resetPage() {
+        this.personInfo = {};
+        this.tabsArr = [];
+        this.indxArr = [];
+        this.data = [];
+      }
     },
     watch: {
       'groupPersonSearchForm.personId'(val) {
@@ -5418,9 +5514,9 @@
       },
       isRadioChecked(val) {
         this.isQuitShow = false;
-        this.indxArr = [];
         this.personHeight = 0;
         this.personWeight = 0;
+        this.resetPage();
         if (val) {
           this.disRadio = true;
           let userInfo = Cookies.get("userInfo");
@@ -5435,13 +5531,7 @@
               this.checkFlag = false;
             }
           }
-          //加载单个人员信息
           this.getOnePersonData(val);
-        } else {
-          //清除当前表格中信息
-          this.personInfo = {};
-          this.tabsArr = [];
-          this.data = [];
         }
       },
 

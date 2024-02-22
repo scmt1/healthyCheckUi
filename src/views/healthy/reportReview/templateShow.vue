@@ -17,7 +17,7 @@
                         <iframe  ref="previewHtmlTemplateFC" :src="previewHtmlUrlFC" frameborder="0" style="width: 100%; height: 100%"></iframe>
                     </div>
                 </TabPane>
-                <TabPane label="告知书" name="1" v-if="!loading && (physicalType == '职业体检' || physicalType == '健康体检'|| physicalType == '放射体检')">
+                <TabPane label="告知书" name="1" v-if="!loading && (physicalType == '职业体检' || physicalType == '放射体检')">
                     <div class="previewIframe" >
                         <iframe  ref="previewHtmlTemplateGZS" :src="previewHtmlUrlGZS" frameborder="0" style="width: 100%; height: 100%"></iframe>
                     </div>
@@ -1509,16 +1509,34 @@
                                         "id": "",
                                         "type": "说明",
                                         "baseProjectId": ""
-                                    },)
+                                    })
                                 }
-                                tabPanes.push({
-                                    "name": "个人复查报告-基本信息",
-                                    "templateId": "808295634be84067aea793ccb73a0fea",
-                                    "id": "",
-                                    "type": "个人复查报告-基本信息",
-                                    "baseProjectId": "",
-                                    "healthCheckup": []
-                                });
+                                if(this.$hospitalName && this.$hospitalName.isReviewConsultation){
+                                    tabPanes.push({
+                                        "name": "个人复查报告-基本信息",
+                                        "templateId": "808295634be84067aea793ccb73a0fea",
+                                        "id": "",
+                                        "type": "个人复查报告-基本信息",
+                                        "baseProjectId": "",
+                                        "healthCheckup": []
+                                    },{
+                                        "name": "问诊科检查表",
+                                        "templateId": templateIdWzk,
+                                        "id": "",
+                                        "type": "问诊科检查表",
+                                        "baseProjectId": ""
+                                    });
+                                }else {
+                                    tabPanes.push({
+                                        "name": "个人复查报告-基本信息",
+                                        "templateId": "808295634be84067aea793ccb73a0fea",
+                                        "id": "",
+                                        "type": "个人复查报告-基本信息",
+                                        "baseProjectId": "",
+                                        "healthCheckup": []
+                                    });
+                                }
+
                             }else{
                                 let conclusionTemplateId = "8160f89d69ddb5b18f2b8f9ccd67fa28"
                                 if(_this.isSplitConclusion){
@@ -1574,33 +1592,67 @@
                                 })
                             }
                             if(reportName == "复查报告"){
-                                tabPanes.push({
-                                    "name": "个人复查报告-基本信息",
-                                    "templateId": "3d02bb2d81c7b4a129706fd3b0bb18a6",
-                                    "id": "",
-                                    "type": "个人复查报告-基本信息",
-                                    "baseProjectId": "",
-                                    "healthCheckup": []
-                                });
+                                if (this.$hospitalName && this.$hospitalName.isInitialMerger){
+                                    tabPanes.push({
+                                        "name": "首页封面",
+                                        "templateId": "9790f68f599ac47f5aa4559e818d8142",
+                                        "id": "",
+                                        "type": "首页封面",
+                                        "baseProjectId": "",
+                                        "healthCheckup": []
+                                    }, {
+                                        "name": "说明",
+                                        "templateId": "7003c1e6e72c690fbe0b286e5944de57",
+                                        "id": "",
+                                        "type": "说明",
+                                        "baseProjectId": ""
+                                    })
+                                }
+                                if (_this.$hospitalName &&  _this.$hospitalName.isReviewConsultation){
+                                    tabPanes.push({
+                                        "name": "个人复查报告-基本信息",
+                                        "templateId": "3d02bb2d81c7b4a129706fd3b0bb18a6",
+                                        "id": "",
+                                        "type": "个人复查报告-基本信息",
+                                        "baseProjectId": "",
+                                        "healthCheckup": []
+                                    },{
+                                        "name": "问诊科检查表",
+                                        "templateId": templateIdWzk,
+                                        "id": "",
+                                        "type": "问诊科检查表",
+                                        "baseProjectId": ""
+                                    });
+                                }else {
+                                    tabPanes.push({
+                                        "name": "个人复查报告-基本信息",
+                                        "templateId": "3d02bb2d81c7b4a129706fd3b0bb18a6",
+                                        "id": "",
+                                        "type": "个人复查报告-基本信息",
+                                        "baseProjectId": "",
+                                        "healthCheckup": []
+                                    })
+                            }
                             }else {
                                 let conclusionTemplateId = "2209519a9c327c9be267aa7d54ef2d51"
                                 if (_this.isSplitConclusion) {
                                     conclusionTemplateId = "b55ff67fcd359b1a1a845748c033ce06";
                                 }
-                                tabPanes.push({
-                                    "name": "检查结果及处理意见",
-                                    "templateId": conclusionTemplateId,
-                                    "id": "",
-                                    "type": "检查结果及处理意见",
-                                    "baseProjectId": "",
-                                    "healthCheckup": []
-                                }, {
-                                    "name": "问诊科检查表",
-                                    "templateId": templateIdWzk,
-                                    "id": "",
-                                    "type": "问诊科检查表",
-                                    "baseProjectId": ""
-                                });
+                                    tabPanes.push({
+                                        "name": "检查结果及处理意见",
+                                        "templateId": conclusionTemplateId,
+                                        "id": "",
+                                        "type": "检查结果及处理意见",
+                                        "baseProjectId": "",
+                                        "healthCheckup": []
+                                    }, {
+                                        "name": "问诊科检查表",
+                                        "templateId": templateIdWzk,
+                                        "id": "",
+                                        "type": "问诊科检查表",
+                                        "baseProjectId": ""
+                                    });
+
                             }
                         }
 
@@ -1918,24 +1970,23 @@
                                 }
                             }
                         }
-                        if(tabItemsAdd && tabItemsAdd.length > 0){
-                        	if(tabItemsAdd.length == 1){
-								tabPanes.push(tabItemsAdd[0]);
+                      if (tabItemsAdd && tabItemsAdd.length > 0) {
+                        if (tabItemsAdd.length == 1) {
+                          tabPanes.push(tabItemsAdd[0]);
+                        } else {
+                          for (let i = 0; i < tabPanes.length; i++) {
+                            if (tabPanes[i] && tabPanes[i].officeName && tabPanes[i].officeName.indexOf("检验科") > -1 && tabPanes[i + 1] && tabPanes[i + 1].officeName && tabPanes[i + 1].officeName.indexOf("检验科") <= -1) {
+                              let intNow = i + 1;
+                              for (let j = 0; j < tabItemsAdd.length; j++) {
+                                tabPanes.splice(intNow, 0, tabItemsAdd[j]);
+                                intNow++;
+                              }
+                              break;
                             }
-                        	else{
-								for(let i = 0;i < tabPanes.length;i ++){
-									if(tabPanes[i].officeName && tabPanes[i].officeName.indexOf("检验科") > -1 && tabPanes[i+1].officeName && tabPanes[i+1].officeName.indexOf("检验科") <= -1){
-										let intNow = i + 1;
-										for(let j = 0;j < tabItemsAdd.length;j ++){
-											tabPanes.splice(intNow, 0, tabItemsAdd[j]);
-											intNow ++;
-										}
-										break;
-									}
-								}
-                            }
-
+                          }
                         }
+
+                      }
                         //检验科 仅保留首页基本信息
                         for(let i = 0;i < tabPanes.length;i ++){
                             if(tabPanes[i].officeName && tabPanes[i].officeName.indexOf("检验科") > -1){
@@ -1955,7 +2006,7 @@
                                 startPage = 3;
                             }else if(reportName == "复查报告"){
                                 if (this.$hospitalName && this.$hospitalName.isInitialMerger){
-                                    startPage = 3
+                                    startPage = 3;
                                 }else {
                                     startPage = 1;
                                 }
@@ -2024,9 +2075,19 @@
                                 startPage = 4;
                             }else if(reportName == "复查报告"){
                                 if (this.$hospitalName && this.$hospitalName.isInitialMerger){
-                                    startPage = 4;
+                                    if (this.$hospitalName.isReviewConsultation){
+                                        startPage = 4
+                                    }
+                                    else{
+                                        startPage = 3
+                                    }
                                 }else {
-                                    startPage = 1;
+                                    if (this.$hospitalName.isReviewConsultation){
+                                        startPage = 2
+                                    }
+                                    else{
+                                        startPage = 1
+                                    }
                                 }
                             }
                             let int = startPage;
@@ -2106,9 +2167,18 @@
                                 startPage = 4;
                             }else if(reportName == "复查报告"){
                                 if (this.$hospitalName && this.$hospitalName.isInitialMerger){
-                                    startPage = 4;
+                                    if (this.$hospitalName.isReviewConsultation){
+                                        startPage = 4
+                                    } else{
+                                        startPage = 3
+                                    }
                                 }else {
-                                    startPage = 1;
+                                    if (this.$hospitalName.isReviewConsultation){
+                                        startPage = 2
+                                    }
+                                    else{
+                                        startPage = 1
+                                    }
                                 }
                             }
                             let int = startPage;
@@ -2205,6 +2275,17 @@
                                     }
                                 }*/
 
+                                if(officeName && officeName != "" && officeName.indexOf("检验科") > -1){
+                                    //申请医师
+                                    if (_this.$hospitalName.isDoctor){//是否 设定申请医师名
+                                        if(_this.$hospitalName.DoctorToBeExamined){//优先使用配置的名字作为申请医师名
+                                            templateData.doctor = _this.$hospitalName.DoctorToBeExamined;
+                                        }else if(_this.$hospitalName.legalPerson){//默认使用医院法人作为申请医师名
+                                            templateData.doctor = _this.$hospitalName.legalPerson;
+                                        }
+                                    }
+                                }
+
                                 //医院单位信息(单位地址、邮政编码、联系电话、传真号码、电子邮箱)
                                 templateData.hospitalAddress = _this.$hospitalName.hospitalAddress;
                                 //templateData.zipCode = _this.$hospitalName.zipCode;
@@ -2249,6 +2330,10 @@
 									if(name.indexOf("血常规") <= -1 && name.indexOf("尿常规") <= -1){
                                         if(name.indexOf("乙肝两对半") > -1){
                                             baseProjectId = "552";//乙肝两对半模板 乙肝两对半
+                                        }else if (name.indexOf("染色体") > -1){
+                                            baseProjectId = "52e9f882f1f4b748eb007a0278668243";//染色体模板
+                                        }else if(name.indexOf("微核") > -1){
+                                            baseProjectId = "37e5c67e5612e343bdb800d6c57b86e7"//微核模板
                                         }else{
                                             baseProjectId = "1213";//血清模板 血清ALT
                                         }
@@ -2583,7 +2668,7 @@
                                 if(this.physicalType == "职业体检"|| this.physicalType == '放射体检'){
                                     this.noticeChange();
                                 }
-                                if((this.physicalType == '职业体检' || this.physicalType == '健康体检' || this.physicalType == '放射体检')){
+                                if((this.physicalType == '职业体检' || this.physicalType == '健康体检' || this.physicalType == '放射体检') && this.isShowFirstPage){
                                     this.firstPageChange();
                                     this.batchPrintTemplateFisrtFM();
                                 }

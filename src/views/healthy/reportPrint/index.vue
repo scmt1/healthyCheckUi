@@ -63,6 +63,8 @@
                            @on-clear="inputSearchChange"/>-->
                     <Input v-model="searchForm.personName" placeholder="请输入姓名" @on-clear="inputSearchChange('')"
                            @keypress.native.enter="inputSearchChange" style="margin-top: 10px;margin-bottom: 10px;" clearable/>
+                    <Input v-model="searchForm.orderCode" placeholder="请输入订单编号" @on-clear="inputSearchChange('')"
+                           @keypress.native.enter="inputSearchChange" style="margin-bottom: 10px;" clearable v-if="drop"></Input>
                     <Input v-model="searchForm.testNum" placeholder="请输入体检编号" @on-clear="inputSearchChange('')"
                            @keypress.native.enter="inputSearchChange" style="margin-bottom: 10px;" clearable v-if="drop"></Input>
                     <Input v-model="searchForm.dept" placeholder="请输入单位名称" @on-clear="inputSearchChange('')"
@@ -288,6 +290,7 @@
                     personName: "",//姓名
                     testNum: "",//体检编号
                     dept: "",//单位名称
+                    orderCode:''//订单编号
                 },
                 tabPanes: [],
                 tabItems: [],
@@ -862,7 +865,7 @@
 				}
                 if (!this.$hospitalName.queryTimeChange){
                     if(searchForm.startDate == null||searchForm.startDate .trim().length==0){
-                        searchForm.startDate = "0000-00-00 00:00:00"
+                        searchForm.startDate = "1971-01-01 00:00:00"
                     }
                     if(searchForm.endDate == null||searchForm.endDate .trim().length==0){
                         let endTime = getDataString(new Date);
@@ -3790,6 +3793,9 @@
 
         .ivu-btn {
             margin-right: 4px;
+        }
+        .ivu-page-simple-pager input{
+            width: 38px;
         }
     }
 </style>

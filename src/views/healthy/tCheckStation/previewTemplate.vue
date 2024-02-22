@@ -106,14 +106,6 @@ export default {
 
                 //放射科报告
                 if(officeName && officeName != "" && (officeName.indexOf("DR室") > -1 || officeName.indexOf("CT室") > -1 || officeName.indexOf("彩超室") > -1)){
-                    //申请医师
-                    if (_this.$hospitalName.isDoctor){//是否 设定申请医师名
-                        if(_this.$hospitalName.DoctorToBeExamined){//优先使用配置的名字作为申请医师名
-                            d.doctor = _this.$hospitalName.DoctorToBeExamined;
-                        }else if(_this.$hospitalName.legalPerson){//默认使用医院法人作为申请医师名
-                            d.doctor = _this.$hospitalName.legalPerson;
-                        }
-                    }
                     //报告医师
                     if(_this.$hospitalName.reportDoctor){
                         d.reportDoctor = _this.$hospitalName.reportDoctor;
@@ -126,6 +118,14 @@ export default {
                         d.inspectDoctor = _this.$hospitalName.updateCheckPersonJYK;
                     }
                 }
+                //申请医师
+                if (_this.$hospitalName.isDoctor){//是否 设定申请医师名
+                    if(_this.$hospitalName.DoctorToBeExamined){//优先使用配置的名字作为申请医师名
+                        d.doctor = _this.$hospitalName.DoctorToBeExamined;
+                    }else if(_this.$hospitalName.legalPerson){//默认使用医院法人作为申请医师名
+                        d.doctor = _this.$hospitalName.legalPerson;
+                    }
+                }
 
                 //模板替换
                 let baseProjectId = _this.personInfo.groupItems.portfolioProjectId
@@ -135,6 +135,10 @@ export default {
                     if(name.indexOf("血常规") <= -1 && name.indexOf("尿常规") <= -1){
                         if(name.indexOf("乙肝两对半") > -1){
                             baseProjectId = "552";//乙肝两对半模板 乙肝两对半
+                        }else if (name.indexOf("染色体") > -1){
+                            baseProjectId = "52e9f882f1f4b748eb007a0278668243";//染色体模板
+                        }else if (name.indexOf("微核") > -1 ){
+                            baseProjectId = "37e5c67e5612e343bdb800d6c57b86e7";//微核模板
                         }else{
                             baseProjectId = "1213";//血清模板 血清ALT
                         }
@@ -291,6 +295,7 @@ export default {
                 templateData.smokeState = "/";//吸烟状态
                 templateData.package = "/";//包每天
                 templateData.smokeYear = "/";//吸烟年
+                templateData.smokeMoon = "/";//吸烟月
                 templateData.drinkState = "/";//喝酒状态
                 templateData.mlDay = "/";//ml每天
                 templateData.drinkYear = "/";//喝酒年
@@ -496,13 +501,24 @@ export default {
                         templateData.abnor = _this.personInfo.abnormalFetus;//异常胎
                     }
                     if (_this.personInfo.smokeState) {
-                        templateData.smokeState = _this.personInfo.smokeState;//吸烟状态
+                      if (_this.$hospitalName && _this.$hospitalName.SmokingStatus){
+                        let SmokingStatus = _this.$hospitalName.SmokingStatus[_this.personInfo.smokeState]
+                        templateData.smokeState = SmokingStatus
+                        if (SmokingStatus == null || SmokingStatus == undefined){
+                          templateData.smokeState = _this.personInfo.smokeState
+                        }
+                      }else {
+                        templateData.smokeState = _this.personInfo.smokeState
+                      }
                     }
                     if (_this.personInfo.packageEveryDay) {
                         templateData.package = _this.personInfo.packageEveryDay;//包每天
                     }
                     if (_this.personInfo.smokeYear) {
                         templateData.smokeYear = _this.personInfo.smokeYear;//吸烟年
+                    }
+                    if (_this.personInfo.smokeMoon) {
+                      templateData.smokeMoon = _this.personInfo.smokeMoon;//吸烟月
                     }
                     if (_this.personInfo.drinkState) {
                         templateData.drinkState = _this.personInfo.drinkState;//喝酒状态
@@ -882,9 +898,12 @@ export default {
                                                     //哮喘
                                                     templateData.degreeXC = "-";//程度
                                                     templateData.timeXC = "-";//病程时间
-                                                    //尿频、尿急
+                                                    //尿频
                                                     templateData.degreeNP = "-";//程度
                                                     templateData.timeNP = "-";//病程时间
+                                                    //尿急
+                                                    templateData.degreeNJ = "-";//程度
+                                                    templateData.timeNJ = "-";//病程时间
                                                     //尿痛
                                                     templateData.degreeNT = "-";//程度
                                                     templateData.timeNT = "-";//病程时间
@@ -984,12 +1003,18 @@ export default {
                                                     //肝区疼痛
                                                     templateData.degreeGQTT = "-";//程度
                                                     templateData.timeGQTT = "-";//病程时间
-                                                    //腹胀、腹痛
-                                                    templateData.degreeFZFT = "-";//程度
-                                                    templateData.timeFZFT = "-";//病程时间
-                                                    //恶心//恶心、呕吐
-                                                    templateData.degreeEXOT = "-";//程度
-                                                    templateData.timeEXOT = "-";//病程时间
+                                                    //腹胀
+                                                    templateData.degreeFZ = "-";//程度
+                                                    templateData.timeFZ = "-";//病程时间
+                                                    //腹痛
+                                                    templateData.degreeFT = "-";//程度
+                                                    templateData.timeFT = "-";//病程时间
+                                                    //恶心
+                                                    templateData.degreeEX = "-";//程度
+                                                    templateData.timeEX = "-";//病程时间
+                                                    //呕吐
+                                                    templateData.degreeOT = "-";//程度
+                                                    templateData.timeOT = "-";//病程时间
                                                     //腹泻
                                                     templateData.degreeFX = "-";//程度
                                                     templateData.timeFX = "-";//病程时间
@@ -999,6 +1024,27 @@ export default {
                                                     //便血
                                                     templateData.degreeBX = "-";//程度
                                                     templateData.timeBX = "-";//病程时间
+                                                    //月经异常
+                                                    templateData.degreeYJYC = "-";//程度
+                                                    templateData.timeYJYC = "-";//病程时间
+                                                    //皮下出血
+                                                    templateData.degreePXCX = "-";//程度
+                                                    templateData.timePXCX = "-";//病程时间
+                                                    //多汗
+                                                    templateData.degreeDH = "-";//程度
+                                                    templateData.timeDH = "-";//病程时间
+                                                    //色素脱失或沉着
+                                                    templateData.degreeSSTX = "-";//程度
+                                                    templateData.timeSSTX = "-";//病程时间
+                                                    //赘生物
+                                                    templateData.degreeZSW = "-";//程度
+                                                    templateData.timeZSW = "-";//病程时间
+                                                    //出血点
+                                                    templateData.degreeCXD = "-";//程度
+                                                    templateData.timeCXD = "-";//病程时间
+                                                    //水泡
+                                                    templateData.degreeSP = "-";//程度
+                                                    templateData.timeSP = "-";//病程时间
                                                     //其他
                                                     templateData.prNaQT = "无";//项目名称
                                                     templateData.degreeQT = "-";//程度
@@ -1233,7 +1279,7 @@ export default {
                                                                         templateData.timeXC = symptomData[i].courseTime;//病程时间
                                                                     }
                                                                 }
-                                                                if (symptomData[i].projectName.replaceAll(" ", "") == "尿频、尿急") {
+                                                                if (symptomData[i].projectName.replaceAll(" ", "") == "尿频") {
                                                                     if (symptomData[i].degree) {
                                                                         templateData.degreeNP = symptomData[i].degree;//程度
                                                                     }
@@ -1241,6 +1287,14 @@ export default {
                                                                         templateData.timeNP = symptomData[i].courseTime;//病程时间
                                                                     }
                                                                 }
+                                                              if (symptomData[i].projectName.replaceAll(" ", "") == "尿急") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeNJ = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeNJ = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
                                                                 if (symptomData[i].projectName.replaceAll(" ", "") == "尿痛") {
                                                                     if (symptomData[i].degree) {
                                                                         templateData.degreeNT = symptomData[i].degree;//程度
@@ -1503,22 +1557,38 @@ export default {
                                                                         templateData.timeGQTT = symptomData[i].courseTime;//病程时间
                                                                     }
                                                                 }
-                                                                if (symptomData[i].projectName.replaceAll(" ", "") == "腹胀、腹痛") {
+                                                                if (symptomData[i].projectName.replaceAll(" ", "") == "腹胀") {
                                                                     if (symptomData[i].degree) {
-                                                                        templateData.degreeFZFT = symptomData[i].degree;//程度
+                                                                        templateData.degreeFZ = symptomData[i].degree;//程度
                                                                     }
                                                                     if (symptomData[i].courseTime) {
-                                                                        templateData.timeFZFT = symptomData[i].courseTime;//病程时间
+                                                                        templateData.timeFZ = symptomData[i].courseTime;//病程时间
                                                                     }
                                                                 }
+                                                              if (symptomData[i].projectName.replaceAll(" ", "") == "腹痛") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeFT = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeFT = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
                                                                 if (symptomData[i].projectName.replaceAll(" ", "") == "恶心") {//恶心、呕吐
                                                                     if (symptomData[i].degree) {
-                                                                        templateData.degreeEXOT = symptomData[i].degree;//程度
+                                                                        templateData.degreeEX = symptomData[i].degree;//程度
                                                                     }
                                                                     if (symptomData[i].courseTime) {
-                                                                        templateData.timeEXOT = symptomData[i].courseTime;//病程时间
+                                                                        templateData.timeEX = symptomData[i].courseTime;//病程时间
                                                                     }
                                                                 }
+                                                              if (symptomData[i].projectName.replaceAll(" ", "") == "呕吐") {//恶心、呕吐
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeOT = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeOT = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
                                                                 if (symptomData[i].projectName.replaceAll(" ", "") == "腹泻") {
                                                                     if (symptomData[i].degree) {
                                                                         templateData.degreeFX = symptomData[i].degree;//程度
@@ -1543,6 +1613,62 @@ export default {
                                                                         templateData.timeBX = symptomData[i].courseTime;//病程时间
                                                                     }
                                                                 }
+                                                                if (symptomData[i].projectName.replaceAll(" ", "") == "月经异常") {
+                                                                  if (symptomData[i].degree) {
+                                                                    templateData.degreeYJYC = symptomData[i].degree;//程度
+                                                                  }
+                                                                  if (symptomData[i].courseTime) {
+                                                                    templateData.timeYJYC = symptomData[i].courseTime;//病程时间
+                                                                  }
+                                                                }
+                                                              if (symptomData[i].projectName.replaceAll(" ", "") == "皮下出血") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreePXCX = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timePXCX = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
+                                                              if (symptomData[i].projectName.replaceAll(" ", "") == "多汗") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeDH = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeDH = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
+                                                              if (symptomData[i].projectName.trim() == "色素脱失或沉着") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeSSTX = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeSSTX = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
+                                                              if (symptomData[i].projectName.trim() == "赘生物") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeZSW = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeZSW = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
+                                                              if (symptomData[i].projectName.trim() == "出血点(斑)") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeCXD = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeCXD = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
+                                                              if (symptomData[i].projectName.trim() == "水疱或大疱") {
+                                                                if (symptomData[i].degree) {
+                                                                  templateData.degreeSP = symptomData[i].degree;//程度
+                                                                }
+                                                                if (symptomData[i].courseTime) {
+                                                                  templateData.timeSP = symptomData[i].courseTime;//病程时间
+                                                                }
+                                                              }
                                                                 if (symptomData[i].type && symptomData[i].type.replaceAll(" ", "") == "其他") {
                                                                     templateData.prNaQT = symptomData[i].projectName;//项目名称
                                                                     if (symptomData[i].degree) {

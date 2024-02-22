@@ -101,7 +101,7 @@ templateJs.dataInit = function (_this, tTemplateId, baseProjectId, tTemplateType
                         templateData.createTime = "";
                         if (personInfo.work_type_text) {
                             templateData.workTypeText = personInfo.work_type_text;//工种名称
-                            if (templateData.workTypeText == "其他") {
+                            if (templateData.workTypeText.indexOf("其他") > -1) {
                                 templateData.workTypeText = personInfo.work_name;//工种其他名称
                             }
                         }
@@ -172,6 +172,10 @@ templateJs.dataInit = function (_this, tTemplateId, baseProjectId, tTemplateType
             if (name.indexOf("血常规") <= -1 && name.indexOf("尿常规") <= -1) {
                 if (name.indexOf("乙肝两对半") > -1) {
                     baseProjectId = "552";//乙肝两对半模板 乙肝两对半
+                }else if (name.indexOf("染色体") > -1){
+                    baseProjectId = "52e9f882f1f4b748eb007a0278668243";//染色体模板
+                }else if (name.indexOf("微核") > -1){
+                    baseProjectId = "37e5c67e5612e343bdb800d6c57b86e7";//染微核模板
                 } else {
                     baseProjectId = "1213";//血清模板 血清ALT
                 }
@@ -389,6 +393,7 @@ function itemDataInit(_this, physicalType, personInfo, groupItemData, name, grou
     templateData.inspectResult = inspectResult;//影像所见(诊断提醒)
     templateData.autograph = checkSign;//医生签名
     templateData.projectNameTemplate = name;//项目名称
+    templateData.projectTypeName = name?.includes("B超") ? "B超" : "彩超"
 
     //查询分检项目检查结果
     let departItemResultArr = [];
@@ -434,15 +439,17 @@ function itemDataInit(_this, physicalType, personInfo, groupItemData, name, grou
 
         if (name && name.indexOf("复") > -1) {
             templateData.reviewName = "（复）";
-            let reviewData = personInfo.reviewProjectsList.filter(item => item.name == name && item.id == groupItemId && item.isPass == 2);
-            templateData.inspectTime = reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd HH:mm:ss") : formartDate(new Date(), "yyyy-MM-dd HH:mm:ss");//检查时间
-            templateData.inspectDate = reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd") : formartDate(new Date(), "yyyy-MM-dd");//检查日期
+            if(personInfo.reviewProjectsList){
+                let reviewData = personInfo.reviewProjectsList.filter(item => item.name == name && item.id == groupItemId && item.isPass == 2);
+                templateData.inspectTime = reviewData && reviewData.length>0 && reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd HH:mm:ss") : formartDate(new Date(), "yyyy-MM-dd HH:mm:ss");//检查时间
+                templateData.inspectDate = reviewData && reviewData.length>0 && reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd") : formartDate(new Date(), "yyyy-MM-dd");//检查日期
+            }
             templateData.createTime = templateData.inspectTime;
             templateData.createDate = templateData.inspectDate;//送检日期
         } else {
             templateData.reviewName = "";
-            templateData.inspectTime = personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd HH:mm:ss") : formartDate(oldTime, "yyyy-MM-dd HH:mm:ss");//检查时间
-            templateData.inspectDate = personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd") : formartDate(oldTime, "yyyy-MM-dd");//检查日期
+            templateData.inspectTime = personInfo && personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd HH:mm:ss") : formartDate(oldTime, "yyyy-MM-dd HH:mm:ss");//检查时间
+            templateData.inspectDate = personInfo && personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd") : formartDate(oldTime, "yyyy-MM-dd");//检查日期
             templateData.createTime = templateData.inspectTime;
             templateData.createDate = templateData.inspectDate;//送检日期
         }
@@ -475,8 +482,8 @@ function itemDataInit(_this, physicalType, personInfo, groupItemData, name, grou
             templateData = pureTone(departItemResultArr, templateData, _this);
             let cyDatasTZ = [];
             let cyDatasTZGD = [];
-            if (personInfo.hazard_factors_text) {
-                let hazardFactorsText = personInfo.hazard_factors_text;
+            if (personInfo.hazardFactorsText ?? personInfo.hazard_factors_text) {
+                let hazardFactorsText = personInfo.hazardFactorsText ?? personInfo.hazard_factors_text;
                 let hazardFactorsTextArray = [];
                 if (hazardFactorsText.indexOf("|") > -1 || hazardFactorsText.indexOf("、") > -1) {
                     hazardFactorsTextArray = hazardFactorsText.split("|");
@@ -546,7 +553,7 @@ function itemDataInit(_this, physicalType, personInfo, groupItemData, name, grou
                         templateData.gl6000 = '—';
                     }
                 } else {
-                    if (!(personInfo.hazard_factors_text.indexOf("机动车") > -1 || personInfo.hazard_factors_text.indexOf("压力容器") > -1) || (_this.$hospitalName && _this.$hospitalName.isShowHighFrequency)) {
+                    if (!(hazardFactorsText.indexOf("机动车") > -1 || hazardFactorsText.indexOf("压力容器") > -1) || (_this.$hospitalName && _this.$hospitalName.isShowHighFrequency)) {
                         if (templateData.gGFA && templateData.gGFA != 0) {
                             cyDatasTZ.push({
                                 GFA: templateData.GFA,
@@ -604,7 +611,32 @@ function itemDataInit(_this, physicalType, personInfo, groupItemData, name, grou
                 }
                 //加权值显示
                 let cyDatasTZjqz = [];
-                if (hazardFactorsText && hazardFactorsText.indexOf("噪声") > -1) {
+                if (_this.$hospitalName.isNoise && hazardFactorsText && hazardFactorsText.indexOf("噪声") > -1) {
+                    if (name ) {
+                        /*cyDatasTZjqz.push({
+                            WVr: templateData.WVr,
+                            WVl: templateData.WVl,
+                        })*/
+                        let WVTEXTL = "";
+                        let WVL = 0;
+                        let WVTEXTR = "";
+                        let WVR = 0;
+                        if (templateData.WVr && templateData.WVl) {
+                            WVTEXTR = "右耳语频加权值为  "
+                            WVR = templateData.WVr
+                            WVTEXTL = "左耳语频加权值为  "
+                            WVL = templateData.WVl
+                            cyDatasTZjqz.push({
+                                WVTEXT: WVTEXTR,
+                                WV: WVR,
+                            },
+                                {
+                                    WVTEXT: WVTEXTL,
+                                    WV: WVL,
+                                })
+                        }
+                    }
+                }else {
                     if (name && name.indexOf("复") > -1) {
                         /*cyDatasTZjqz.push({
                             WVr: templateData.WVr,
@@ -613,23 +645,23 @@ function itemDataInit(_this, physicalType, personInfo, groupItemData, name, grou
                         let WVTEXT = "";
                         let WV = 0;
                         if (templateData.WVr && templateData.WVl) {
-                            if (templateData.WVr < templateData.WVl) {
-                                // WVTEXT = "右耳语频加权值为  ";
-                                WVTEXT = "较好耳语频加权值为";
-                                WV = templateData.WVr;
-                            } else if (templateData.WVr > templateData.WVl) {
-                                // WVTEXT = "左耳语频加权值为  ";
-                                WVTEXT = "较好耳语频加权值为";
-                                WV = templateData.WVl;
-                            } else {
-                                // WVTEXT = "左右耳语频加权值为";
-                                WVTEXT = "较好耳语频加权值为";
-                                WV = templateData.WVr;
-                            }
+                                if (templateData.WVr < templateData.WVl) {
+                                    // WVTEXT = "右耳语频加权值为  ";
+                                    WVTEXT = "较好耳语频加权值为";
+                                    WV = templateData.WVr;
+                                } else if (templateData.WVr > templateData.WVl) {
+                                    // WVTEXT = "左耳语频加权值为  ";
+                                    WVTEXT = "较好耳语频加权值为";
+                                    WV = templateData.WVl;
+                                } else {
+                                    // WVTEXT = "左右耳语频加权值为";
+                                    WVTEXT = "较好耳语频加权值为";
+                                    WV = templateData.WVr;
+                                }
                             cyDatasTZjqz.push({
-                                WVTEXT: WVTEXT,
-                                WV: WV,
-                            })
+                                    WVTEXT: WVTEXT,
+                                    WV: WV,
+                                })
                         }
                     }
                 }
@@ -679,67 +711,173 @@ function itemDataInit(_this, physicalType, personInfo, groupItemData, name, grou
             }
             if (officeName.indexOf("检验科") > -1 && name.indexOf("尿常规") > -1) {
                 if (departItemResultArr && departItemResultArr.length > 0) {
-                    for (let n = 0; n < 11; n++) {
-                        if (n < 9) {
-                            let monitorName2 = "";
-                            let value2 = "";
-                            let reference2 = "";
-                            let unit2 = "";
-                            let arrow2 = "";
-                            let resultTips2 = "";
-                            if (departItemResultArr[n + 11]) {
-                                if (departItemResultArr[n + 11].orderGroupItemProjectName) {
-                                    monitorName2 = departItemResultArr[n + 11].orderGroupItemProjectName;
-                                }
-                                if (departItemResultArr[n + 11].result) {
-                                    value2 = departItemResultArr[n + 11].result;
-                                }
-                                if (departItemResultArr[n + 11].scope) {
-                                    reference2 = departItemResultArr[n + 11].scope;
-                                }
-                                if (departItemResultArr[n + 11].unitName) {
-                                    unit2 = departItemResultArr[n + 11].unitName.indexOf("无") > -1 ? "" : departItemResultArr[n + 11].unitName;
-                                }
-                                if (departItemResultArr[n + 11].arrow) {
-                                    arrow2 = departItemResultArr[n + 11].arrow;
-                                }
-                                if (departItemResultArr[n + 11].crisisDegree) {
-                                    resultTips2 = departItemResultArr[n + 11].crisisDegree;
-                                }
+                    if (_this.$hospitalName && _this.$hospitalName.urinalysis && _this.$hospitalName.urinalysis.dryChemistry && _this.$hospitalName.urinalysis.dryChemistry) {
+                        //筛选干化学项目
+                        let dryChemistry = departItemResultArr.filter(i => _this.$hospitalName.urinalysis.dryChemistry.indexOf(i.shortName) > -1)
+                        //筛选镜检项目
+                        let microscope = departItemResultArr.filter(i => _this.$hospitalName.urinalysis.microscope.indexOf(i.shortName) > -1)
+
+                        let baseProject = [];
+                        if (dryChemistry && microscope) {
+                            if (dryChemistry.length > microscope.length) {
+                                baseProject = dryChemistry;
+                            } else {
+                                baseProject = microscope
                             }
-                            tableMonitoring.push({
-                                monitorName: departItemResultArr[n].orderGroupItemProjectName,
-                                value: departItemResultArr[n].result,
-                                reference: departItemResultArr[n].scope,
-                                unit: departItemResultArr[n].unitName ? departItemResultArr[n].unitName.indexOf("无") > -1 ? "" : departItemResultArr[n].unitName : "",
-                                arrow: departItemResultArr[n].arrow,
-                                resultTips: departItemResultArr[n].crisisDegree,
-                                monitorName2: monitorName2,
-                                value2: value2,
-                                reference2: reference2,
-                                unit2: unit2,
-                                arrow2: arrow2,
-                                resultTips2: resultTips2,
-                            });
-                        } else {
-                            tableMonitoring.push({
-                                monitorName: departItemResultArr[n].orderGroupItemProjectName,
-                                value: departItemResultArr[n].result,
-                                reference: departItemResultArr[n].scope,
-                                unit: departItemResultArr[n].unitName ? departItemResultArr[n].unitName.indexOf("无") > -1 ? "" : departItemResultArr[n].unitName : "",
-                                arrow: departItemResultArr[n].arrow,
-                                resultTips: departItemResultArr[n].crisisDegree,
-                                monitorName2: "",
-                                value2: "",
-                                reference2: "",
-                                unit2: "",
-                                arrow2: "",
-                                resultTips2: "",
-                            });
+                        }
+                        //循环长度更长的项目
+                        if (baseProject && baseProject.length) {
+                            for (let i = 0; i < baseProject.length; i++) {
+                                let monitorName = "";
+                                let value = "";
+                                let reference = "";
+                                let unit = "";
+                                let arrow = "";
+                                let resultTips = "";
+                                let monitorName2 = "";
+                                let value2 = "";
+                                let reference2 = "";
+                                let unit2 = "";
+                                let arrow2 = "";
+                                let resultTips2 = "";
+                                if (dryChemistry[i] && dryChemistry[i].orderGroupItemProjectName) {
+                                    if (dryChemistry[i].orderGroupItemProjectName) {
+                                        monitorName = dryChemistry[i].orderGroupItemProjectName;
+                                    }
+                                    if (dryChemistry[i].result) {
+                                        value = dryChemistry[i].result;
+                                    }
+                                    if (dryChemistry[i].scope) {
+                                        reference = dryChemistry[i].scope;
+                                    }
+                                    if (dryChemistry[i].unitName) {
+                                        unit = dryChemistry[i].unitName.indexOf("无") > -1 ? "" : dryChemistry[i].unitName;
+                                    }
+                                    if (dryChemistry[i].arrow) {
+                                        arrow = dryChemistry[i].arrow;
+                                    }
+                                    if (dryChemistry[i].crisisDegree) {
+                                        resultTips = dryChemistry[i].crisisDegree;
+                                    }
+                                }
+                                if (microscope[i] && microscope[i].orderGroupItemProjectName) {
+                                    if (microscope[i].orderGroupItemProjectName) {
+                                        monitorName2 = microscope[i].orderGroupItemProjectName;
+                                    }
+                                    if (microscope[i].result) {
+                                        value2 = microscope[i].result;
+                                    }
+                                    if (microscope[i].scope) {
+                                        reference2 = microscope[i].scope;
+                                    }
+                                    if (microscope[i].unitName) {
+                                        unit2 = microscope[i].unitName.indexOf("无") > -1 ? "" : microscope[i].unitName;
+                                    }
+                                    if (microscope[i].arrow) {
+                                        arrow2 = microscope[i].arrow;
+                                    }
+                                    if (microscope[i].crisisDegree) {
+                                        resultTips2 = microscope[i].crisisDegree;
+                                    }
+                                }
+                                tableMonitoring.push({
+                                    monitorName: monitorName,
+                                    value: value,
+                                    reference: reference,
+                                    unit: unit,
+                                    arrow: arrow,
+                                    resultTips: resultTips,
+                                    monitorName2: monitorName2,
+                                    value2: value2,
+                                    reference2: reference2,
+                                    unit2: unit2,
+                                    arrow2: arrow2,
+                                    resultTips2: resultTips2,
+                                })
+                            }
+                        }
+                    } else {
+                        for (let n = 0; n < 11; n++) {
+                            if (n < 9) {
+                                let monitorName2 = "";
+                                let value2 = "";
+                                let reference2 = "";
+                                let unit2 = "";
+                                let arrow2 = "";
+                                let resultTips2 = "";
+                                if (departItemResultArr[n + 11] && departItemResultArr[n + 11].orderGroupItemProjectName) {
+                                    if (departItemResultArr[n + 11].orderGroupItemProjectName) {
+                                        monitorName2 = departItemResultArr[n + 11].orderGroupItemProjectName;
+                                    }
+                                    if (departItemResultArr[n + 11].result) {
+                                        value2 = departItemResultArr[n + 11].result;
+                                    }
+                                    if (departItemResultArr[n + 11].scope) {
+                                        reference2 = departItemResultArr[n + 11].scope;
+                                    }
+                                    if (departItemResultArr[n + 11].unitName) {
+                                        unit2 = departItemResultArr[n + 11].unitName.indexOf("无") > -1 ? "" : departItemResultArr[n + 11].unitName;
+                                    }
+                                    if (departItemResultArr[n + 11].arrow) {
+                                        arrow2 = departItemResultArr[n + 11].arrow;
+                                    }
+                                    if (departItemResultArr[n + 11].crisisDegree) {
+                                        resultTips2 = departItemResultArr[n + 11].crisisDegree;
+                                    }
+                                }
+                                tableMonitoring.push({
+                                    monitorName: departItemResultArr[n].orderGroupItemProjectName,
+                                    value: departItemResultArr[n].result,
+                                    reference: departItemResultArr[n].scope,
+                                    unit: departItemResultArr[n].unitName ? departItemResultArr[n].unitName.indexOf("无") > -1 ? "" : departItemResultArr[n].unitName : "",
+                                    arrow: departItemResultArr[n].arrow,
+                                    resultTips: departItemResultArr[n].crisisDegree,
+                                    monitorName2: monitorName2,
+                                    value2: value2,
+                                    reference2: reference2,
+                                    unit2: unit2,
+                                    arrow2: arrow2,
+                                    resultTips2: resultTips2,
+                                });
+                            } else {
+                                tableMonitoring.push({
+                                    monitorName: departItemResultArr[n].orderGroupItemProjectName,
+                                    value: departItemResultArr[n].result,
+                                    reference: departItemResultArr[n].scope,
+                                    unit: departItemResultArr[n].unitName ? departItemResultArr[n].unitName.indexOf("无") > -1 ? "" : departItemResultArr[n].unitName : "",
+                                    arrow: departItemResultArr[n].arrow,
+                                    resultTips: departItemResultArr[n].crisisDegree,
+                                    monitorName2: "",
+                                    value2: "",
+                                    reference2: "",
+                                    unit2: "",
+                                    arrow2: "",
+                                    resultTips2: "",
+                                });
+                            }
                         }
                     }
+
                 }
             } else if (officeName.indexOf("检验科") > -1 && name.indexOf("乙肝两对半") > -1) {
+                if (departItemResultArr && departItemResultArr.length > 0) {
+                    let int = 1;
+                    departItemResultArr.forEach(i => {
+                        //单个基础项
+                        tableMonitoring.push({
+                            num: int,
+                            shortName: i.shortName ? i.shortName : "",
+                            monitorName: i.orderGroupItemProjectName,
+                            value: i.result,
+                            referenceRange: i.scope,
+                            unit: i.unitName,
+                            arrow: i.arrow,
+                            resultTips: i.crisisDegree
+                        });
+                        int++;
+                    })
+                }
+            }else if (officeName.indexOf("检验科") > -1 && name.indexOf("外周血") > -1){
                 if (departItemResultArr && departItemResultArr.length > 0) {
                     let int = 1;
                     departItemResultArr.forEach(i => {
@@ -1212,66 +1350,69 @@ function tgfxDataInit(_this, personInfo, checkSign, departItemResults, healthChe
             }*/
             departItemResultArr = departItemResults.filter(i => i.orderGroupItemId == ii.groupItemId);
             let departItemResultArrNew = [];
-            for (let i = 0; i < departItemResultArr.length; i++) {
-                if (departItemResultArrNew.length == 0) {
-                    //空结果不展示
-                    if (departItemResultArr[i] && departItemResultArr[i].result && departItemResultArr[i].result.trim().length != 0) {
-                        departItemResultArrNew.push(departItemResultArr[i]);
-                    } else if (personInfo && personInfo.abandonInspectionIdData && personInfo.abandonInspectionIdData.length > 0) {
-                        //弃检项目 明细结果以"/"展示
-                        if (ii.groupItemId && personInfo.abandonInspectionIdData.indexOf(ii.groupItemId) > -1) {
-                            if (ii.name.indexOf("电测听") <= -1 && ii.name.indexOf("纯音") <= -1 && ii.name.indexOf("肺功能") <= -1) {
-                                departItemResultArr[i].result = "/";
-                            } else if (ii.name.indexOf("电测听") > -1 || ii.name.indexOf("纯音") > -1) {
-                                departItemResultArr[i].result = "";
-                            } else if (ii.name.indexOf("肺功能") > -1) {
-                                departItemResultArr[i].result = "/";
-                                // departItemResultArr[i].scope = "/";
-                                departItemResultArr[i].updateId = "/";
+            if (departItemResultArr.length > 0){
+                for (let i = 0; i < departItemResultArr.length; i++) {
+                    if (departItemResultArrNew.length == 0) {
+                        //空结果不展示
+                        if (departItemResultArr[i] && departItemResultArr[i].result && departItemResultArr[i].result.trim().length != 0) {
+                            departItemResultArrNew.push(departItemResultArr[i]);
+                        } else if (personInfo && personInfo.abandonInspectionIdData && personInfo.abandonInspectionIdData.length > 0) {
+                            //弃检项目 明细结果以"/"展示
+                            if (ii.groupItemId && personInfo.abandonInspectionIdData.indexOf(ii.groupItemId) > -1) {
+                                if (ii.name.indexOf("电测听") <= -1 && ii.name.indexOf("纯音") <= -1 && ii.name.indexOf("肺功能") <= -1) {
+                                    departItemResultArr[i].result = "/";
+                                } else if (ii.name.indexOf("电测听") > -1 || ii.name.indexOf("纯音") > -1) {
+                                    departItemResultArr[i].result = "";
+                                } else if (ii.name.indexOf("肺功能") > -1) {
+                                    departItemResultArr[i].result = "/";
+                                    // departItemResultArr[i].scope = "/";
+                                    departItemResultArr[i].updateId = "/";
+                                }
+                                departItemResultArrNew.push(departItemResultArr[i]);
                             }
+                        }
+                    } else {
+                        let flag = true;
+                        for (let j = 0; j < departItemResultArrNew.length; j++) {
+                            /*if(groupItemId && groupItemId.length > 0){
+                                if(departItemResultArr[i].orderGroupItemProjectName == departItemResultArrNew[j].orderGroupItemProjectName){
+                                    flag = false;
+                                }
+                            }else{
+                                if(departItemResultArr[i].orderGroupItemProjectId == departItemResultArrNew[j].orderGroupItemProjectId){
+                                    flag = false;
+                                }
+                            }*/
+                            //去重(按订单基础项id和检查项名称)
+                            if (departItemResultArr[i] && departItemResultArrNew[j] && departItemResultArr[i].orderGroupItemProjectId && departItemResultArrNew[j].orderGroupItemProjectId && departItemResultArr[i].orderGroupItemProjectName && departItemResultArrNew[j].orderGroupItemProjectName && departItemResultArr[i].orderGroupItemProjectId == departItemResultArrNew[j].orderGroupItemProjectId && departItemResultArr[i].orderGroupItemProjectName == departItemResultArrNew[j].orderGroupItemProjectName) {
+                                flag = false;
+                            }
+                        }
+                        //空结果不展示
+                        if (departItemResultArr[i] && ((departItemResultArr[i].result && departItemResultArr[i].result.trim().length == 0) || !departItemResultArr[i].result)) {
+                            //弃检项目 明细结果以"/"展示
+                            if (ii.groupItemId && personInfo.abandonInspectionIdData.indexOf(ii.groupItemId) > -1) {
+                                if (ii.name.indexOf("电测听") <= -1 && ii.name.indexOf("纯音") <= -1 && ii.name.indexOf("肺功能") <= -1) {
+                                    departItemResultArr[i].result = "/";
+                                } else if (ii.name.indexOf("电测听") > -1 || ii.name.indexOf("纯音") > -1) {
+                                    departItemResultArr[i].result = "";
+                                } else if (ii.name.indexOf("肺功能") > -1) {
+                                    departItemResultArr[i].result = "/";
+                                    // departItemResultArr[i].scope = "/";
+                                    departItemResultArr[i].updateId = "/";
+                                }
+
+                            } else {
+                                flag = false;
+                            }
+                        }
+                        if (flag) {
                             departItemResultArrNew.push(departItemResultArr[i]);
                         }
                     }
-                } else {
-                    let flag = true;
-                    for (let j = 0; j < departItemResultArrNew.length; j++) {
-                        /*if(groupItemId && groupItemId.length > 0){
-                            if(departItemResultArr[i].orderGroupItemProjectName == departItemResultArrNew[j].orderGroupItemProjectName){
-                                flag = false;
-                            }
-                        }else{
-                            if(departItemResultArr[i].orderGroupItemProjectId == departItemResultArrNew[j].orderGroupItemProjectId){
-                                flag = false;
-                            }
-                        }*/
-                        //去重(按订单基础项id和检查项名称)
-                        if (departItemResultArr[i] && departItemResultArrNew[j] && departItemResultArr[i].orderGroupItemProjectId && departItemResultArrNew[j].orderGroupItemProjectId && departItemResultArr[i].orderGroupItemProjectName && departItemResultArrNew[j].orderGroupItemProjectName && departItemResultArr[i].orderGroupItemProjectId == departItemResultArrNew[j].orderGroupItemProjectId && departItemResultArr[i].orderGroupItemProjectName == departItemResultArrNew[j].orderGroupItemProjectName) {
-                            flag = false;
-                        }
-                    }
-                    //空结果不展示
-                    if (departItemResultArr[i] && ((departItemResultArr[i].result && departItemResultArr[i].result.trim().length == 0) || !departItemResultArr[i].result)) {
-                        //弃检项目 明细结果以"/"展示
-                        if (ii.groupItemId && personInfo.abandonInspectionIdData.indexOf(ii.groupItemId) > -1) {
-                            if (ii.name.indexOf("电测听") <= -1 && ii.name.indexOf("纯音") <= -1 && ii.name.indexOf("肺功能") <= -1) {
-                                departItemResultArr[i].result = "/";
-                            } else if (ii.name.indexOf("电测听") > -1 || ii.name.indexOf("纯音") > -1) {
-                                departItemResultArr[i].result = "";
-                            } else if (ii.name.indexOf("肺功能") > -1) {
-                                departItemResultArr[i].result = "/";
-                                // departItemResultArr[i].scope = "/";
-                                departItemResultArr[i].updateId = "/";
-                            }
-
-                        } else {
-                            flag = false;
-                        }
-                    }
-                    if (flag) {
-                        departItemResultArrNew.push(departItemResultArr[i]);
-                    }
                 }
             }
+
             departItemResultArr = departItemResultArrNew;
             if (departItemResultArr && departItemResultArr.length > 0) {
                 let groupItemsName = ii.name;
@@ -1281,14 +1422,16 @@ function tgfxDataInit(_this, personInfo, checkSign, departItemResults, healthChe
                 let officeName = data[0].officeName;
                 templateData.inspectDoctor = data[0].checkDoc;//检验医生
                 if (ii.name && ii.name.indexOf("复") > -1) {
-                    let reviewData = personInfo.reviewProjectsList.filter(item => item.name == ii.name && item.id == ii.groupItemId && item.isPass == 2);
-                    templateData.inspectTime = reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd HH:mm:ss") : formartDate(new Date(), "yyyy-MM-dd HH:mm:ss");//检查时间
-                    templateData.inspectDate = reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd") : formartDate(new Date(), "yyyy-MM-dd");//检查日期
+                    if(personInfo.reviewProjectsList){
+                        let reviewData = personInfo.reviewProjectsList.filter(item => item.name == ii.name && item.id == ii.groupItemId && item.isPass == 2);
+                        templateData.inspectTime = reviewData && reviewData.length > 0 && reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd HH:mm:ss") : formartDate(new Date(), "yyyy-MM-dd HH:mm:ss");//检查时间
+                        templateData.inspectDate = reviewData && reviewData.length > 0 && reviewData[0].registDate ? formartDate(reviewData[0].registDate, "yyyy-MM-dd") : formartDate(new Date(), "yyyy-MM-dd");//检查日期
+                    }
                     templateData.createTime = templateData.inspectTime;
                     templateData.createDate = templateData.inspectDate;//送检日期
                 } else {
-                    templateData.inspectTime = personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd HH:mm:ss") : formartDate(oldTime, "yyyy-MM-dd HH:mm:ss");//检查时间
-                    templateData.inspectDate = personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd") : formartDate(oldTime, "yyyy-MM-dd");//检查日期
+                    templateData.inspectTime = personInfo && personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd HH:mm:ss") : formartDate(oldTime, "yyyy-MM-dd HH:mm:ss");//检查时间
+                    templateData.inspectDate = personInfo && personInfo.regist_date ? formartDate(personInfo.regist_date, "yyyy-MM-dd") : formartDate(oldTime, "yyyy-MM-dd");//检查日期
                     templateData.createTime = templateData.inspectTime;
                     templateData.createDate = templateData.inspectDate;//送检日期
                 }
@@ -2321,7 +2464,11 @@ function inspectionDataInit(_this, personInfo, checkSign, physicalType, name) {
             templateData.workStateText = personInfo.work_state_text.replaceAll(" ", "");//监护种类(在岗状态)
         }
         if (personInfo.hazard_factors_text) {
-            templateData.hazardFactorsText = personInfo.hazard_factors_text.replaceAll("|", "、");//监护危害(危害因素名称)
+            if (personInfo.other_hazard_factors && _this.$hospitalName && _this.$hospitalName.isOtherHazards){
+                templateData.hazardFactorsText = personInfo.other_hazard_factors.replaceAll("|", "、");
+            }else {
+                templateData.hazardFactorsText = personInfo.hazard_factors_text.replaceAll("|", "、");//监护危害(危害因素名称)
+            }
         }
         if (personInfo.mobile) {
             templateData.mobile = personInfo.mobile;//联系电话
@@ -2365,10 +2512,10 @@ function inspectionDataInit(_this, personInfo, checkSign, physicalType, name) {
         if (personInfo.work_type_text) {
             templateData.workTypeText = personInfo.work_type_text;//工种名称
             templateData.workTypeTextOld = personInfo.work_type_text;//工种名称
-            /*if (templateData.workTypeText == "其他") {*/
+            if (templateData.workTypeText.indexOf("其他") > -1) {
                 templateData.workTypeText = personInfo.work_name;//工种其他名称
                 templateData.workName = personInfo.work_name;//工种其他名称
-           /* }*/
+            }
         }
     }
     if (personInfo) {
@@ -2669,6 +2816,11 @@ function inspectionDataInitFCJBXX(_this, personInfo, checkSign, physicalType) {
                 templateData.conclusion = conclusion;
                 templateData.handleOpinion = handleOpinion;
                 templateData.reviewResult = "" + conclusion + handleOpinion;
+                if (_this.$hospitalName && _this.$hospitalName.suggestSplitting){
+                    templateData.reviewResult = conclusion;
+                    templateData.reviewOpinion = handleOpinion;
+                }
+
                 templateData.firstConclusion = "第一次体检结论";
                 if (personInfo.inspectionRecordFirst){
                     if (personInfo.inspectionRecordFirst.conclusion){
@@ -2879,7 +3031,7 @@ function gzsDataInit(personInfo, checkSign, physicalType) {
     }
     if (personInfo) {
         //登记日期
-        let dateArray = templateData.registDate.split('-');
+        let  dateArray = templateData.registDate.split('-');
         templateData.ye = dateArray[0];
         templateData.mo = dateArray[1];
         templateData.da = dateArray[2];
@@ -2985,6 +3137,7 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
     templateData.smokeState = "/";//吸烟状态
     templateData.package = "/";//包每天
     templateData.smokeYear = "/";//吸烟年
+    templateData.smokeMoon = "/";//吸烟月
     templateData.drinkState = "/";//喝酒状态
     templateData.mlDay = "/";//ml每天
     templateData.drinkYear = "/";//喝酒年
@@ -3143,13 +3296,24 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
             templateData.abnor = personInfo.abnormal_fetus;//异常胎
         }
         if (personInfo.smoke_state) {
-            templateData.smokeState = personInfo.smoke_state;//吸烟状态
+            if (_this.$hospitalName && _this.$hospitalName.SmokingStatus){
+                let SmokingStatus = _this.$hospitalName.SmokingStatus[personInfo.smoke_state]//吸烟状态
+                templateData.smokeState = SmokingStatus
+                if (SmokingStatus == null || SmokingStatus == undefined){
+                    templateData.smokeState = personInfo.smoke_state
+                }
+            }else {
+                templateData.smokeState = personInfo.smoke_state
+            }
         }
         if (personInfo.package_every_day) {
             templateData.package = personInfo.package_every_day;//包每天
         }
         if (personInfo.smoke_year) {
             templateData.smokeYear = personInfo.smoke_year;//吸烟年
+        }
+        if (personInfo.smoke_moon) {
+            templateData.smokeMoon = personInfo.smoke_moon;//吸烟月
         }
         if (personInfo.drink_state) {
             templateData.drinkState = personInfo.drink_state;//喝酒状态
@@ -3289,7 +3453,7 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                                 let workTypeText = "-";
                                 if (careerHisData[i].workTypeText) {
                                     workTypeText = careerHisData[i].workTypeText;
-                                    if (workTypeText == "其他") {
+                                    if (workTypeText.indexOf("其他") > -1) {
                                         workTypeText = personInfo.work_name;
                                     }
                                 }
@@ -3348,7 +3512,7 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                                 let workTypeText = "-";
                                 if (careerHisData[i].workTypeText) {
                                     workTypeText = careerHisData[i].workTypeText;
-                                    if (workTypeText == "其他") {
+                                    if (workTypeText.indexOf("其他") >-1 ) {
                                         workTypeText = personInfo.work_name;
                                     }
                                 }
@@ -3509,9 +3673,12 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                             //哮喘
                             templateData.degreeXC = "-";//程度
                             templateData.timeXC = "-";//病程时间
-                            //尿频、尿急
+                            //尿频
                             templateData.degreeNP = "-";//程度
                             templateData.timeNP = "-";//病程时间
+                            //尿急
+                            templateData.degreeNJ = "-";//程度
+                            templateData.timeNJ = "-";//病程时间
                             //尿痛
                             templateData.degreeNT = "-";//程度
                             templateData.timeNT = "-";//病程时间
@@ -3611,12 +3778,18 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                             //肝区疼痛
                             templateData.degreeGQTT = "-";//程度
                             templateData.timeGQTT = "-";//病程时间
-                            //腹胀、腹痛
-                            templateData.degreeFZFT = "-";//程度
-                            templateData.timeFZFT = "-";//病程时间
-                            //恶心//恶心、呕吐
-                            templateData.degreeEXOT = "-";//程度
-                            templateData.timeEXOT = "-";//病程时间
+                            //腹胀
+                            templateData.degreeFZ = "-";//程度
+                            templateData.timeFZ = "-";//病程时间
+                            //腹痛
+                            templateData.degreeFT = "-";//程度
+                            templateData.timeFT = "-";//病程时间
+                            //恶心
+                            templateData.degreeEX = "-";//程度
+                            templateData.timeEX = "-";//病程时间
+                            //呕吐
+                            templateData.degreeOT = "-";//程度
+                            templateData.timeOT = "-";//病程时间
                             //腹泻
                             templateData.degreeFX = "-";//程度
                             templateData.timeFX = "-";//病程时间
@@ -3626,6 +3799,27 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                             //便血
                             templateData.degreeBX = "-";//程度
                             templateData.timeBX = "-";//病程时间
+                            //月经异常
+                            templateData.degreeYJYC = "-";//程度
+                            templateData.timeYJYC = "-";//病程时间
+                            //皮下出血
+                            templateData.degreePXCX = "-";//程度
+                            templateData.timePXCX = "-";//病程时间
+                            //多汗
+                            templateData.degreeDH = "-";//程度
+                            templateData.timeDH = "-";//病程时间
+                            //色素脱失或沉着
+                            templateData.degreeSSTX = "-";//程度
+                            templateData.timeSSTX = "-";//病程时间
+                            //赘生物
+                            templateData.degreeZSW = "-";//程度
+                            templateData.timeZSW = "-";//病程时间
+                            //出血点
+                            templateData.degreeCXD = "-";//程度
+                            templateData.timeCXD = "-";//病程时间
+                            //水泡
+                            templateData.degreeSP = "-";//程度
+                            templateData.timeSP = "-";//病程时间
                             //其他
                             templateData.prNaQT = "无";//项目名称
                             templateData.degreeQT = "-";//程度
@@ -3861,12 +4055,20 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                                                 templateData.timeXC = symptomData[i].courseTime;//病程时间
                                             }
                                         }
-                                        if (symptomData[i].projectName.trim() == "尿频、尿急") {
+                                        if (symptomData[i].projectName.trim() == "尿频") {
                                             if (symptomData[i].degree) {
                                                 templateData.degreeNP = symptomData[i].degree;//程度
                                             }
                                             if (symptomData[i].courseTime) {
                                                 templateData.timeNP = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "尿急") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeNJ = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeNJ = symptomData[i].courseTime;//病程时间
                                             }
                                         }
                                         if (symptomData[i].projectName.trim() == "尿痛") {
@@ -4131,20 +4333,36 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                                                 templateData.timeGQTT = symptomData[i].courseTime;//病程时间
                                             }
                                         }
-                                        if (symptomData[i].projectName.trim() == "腹胀、腹痛") {
+                                        if (symptomData[i].projectName.trim() == "腹胀") {
                                             if (symptomData[i].degree) {
-                                                templateData.degreeFZFT = symptomData[i].degree;//程度
+                                                templateData.degreeFZ = symptomData[i].degree;//程度
                                             }
                                             if (symptomData[i].courseTime) {
-                                                templateData.timeFZFT = symptomData[i].courseTime;//病程时间
+                                                templateData.timeFZ = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "腹痛") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeFT = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeFT = symptomData[i].courseTime;//病程时间
                                             }
                                         }
                                         if (symptomData[i].projectName.trim() == "恶心") {//恶心、呕吐
                                             if (symptomData[i].degree) {
-                                                templateData.degreeEXOT = symptomData[i].degree;//程度
+                                                templateData.degreeEX = symptomData[i].degree;//程度
                                             }
                                             if (symptomData[i].courseTime) {
-                                                templateData.timeEXOT = symptomData[i].courseTime;//病程时间
+                                                templateData.timeEX = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "呕吐") {//恶心、呕吐
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeOT = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeOT = symptomData[i].courseTime;//病程时间
                                             }
                                         }
                                         if (symptomData[i].projectName.trim() == "腹泻") {
@@ -4169,6 +4387,62 @@ function inquiryDataInit(_this, personInfo, checkSign, physicalType) {
                                             }
                                             if (symptomData[i].courseTime) {
                                                 templateData.timeBX = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "月经异常") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeYJYC = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeYJYC = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "皮下出血") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreePXCX = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timePXCX = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "多汗") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeDH = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeDH = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "色素脱失或沉着") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeSSTX = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeSSTX = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "赘生物") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeZSW = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeZSW = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "出血点(斑)") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeCXD = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeCXD = symptomData[i].courseTime;//病程时间
+                                            }
+                                        }
+                                        if (symptomData[i].projectName.trim() == "水疱或大疱") {
+                                            if (symptomData[i].degree) {
+                                                templateData.degreeSP = symptomData[i].degree;//程度
+                                            }
+                                            if (symptomData[i].courseTime) {
+                                                templateData.timeSP = symptomData[i].courseTime;//病程时间
                                             }
                                         }
                                         if (symptomData[i].type && symptomData[i].type.trim() == "其他") {
@@ -5251,7 +5525,7 @@ function gynaecology(data, td) {
                 if (i.orderGroupItemProjectName.trim() == "宫颈") {
                     td.cervix = i.result + unit;
                 }
-                if (i.orderGroupItemProjectName.trim() == "宫体") {
+                if (i.orderGroupItemProjectName.trim() == "宫体" || i.orderGroupItemProjectName.trim() == "子宫体") {
                     td.uterineBody = i.result + unit;
                 }
                 if (i.orderGroupItemProjectName.trim() == "附件") {

@@ -22,7 +22,7 @@
                 <FormItem label="复查原因" prop="reason">
                     <Input v-model="form.reason" type="textarea"  :autosize="{maxRows: 3,minRows: 3}"></Input>
                 </FormItem>
-                <FormItem label="危害因素" prop="hazardousFactorsCode">
+                <FormItem label="危害因素" prop="hazardousFactorsCode" v-if="showHazardousFactor">
                     <Select v-model="form.hazardousFactorsCode"  multiple label-width="165px">
                         <Option v-for="(item,i) in hazardousFactorsArr"  :value="item.name">{{item.name}}</Option>
                     </Select>
@@ -62,6 +62,14 @@
             conclusion: {
                 type: String,
                 default: ""
+            }
+        },
+        computed: {
+            physicalType() {
+                return this.$store.state.theme.theme.physicalType;
+            },
+            showHazardousFactor() {
+                return ["健康", "从业"].every(i => !this.physicalType.includes(i))
             }
         },
         data() {
@@ -138,10 +146,10 @@
                         _this.$Modal.remove();
                         let info = {};
                         info.id = _this.personInfo.id;//人员id
-                        info.personName = _this.personInfo.person_name;//人员姓名
+                        info.personName = _this.personInfo.personName ?? _this.personInfo.person_name;//人员姓名
                         info.ids = _this.targetKeys;//复检项目id
-                        info.groupId = _this.personInfo.group_id;//分组
-                        info.orderId = _this.personInfo.order_id;//订单id
+                        info.groupId = _this.personInfo.groupId ?? _this.personInfo.group_id;//分组
+                        info.orderId = _this.personInfo.orderId ?? _this.personInfo.order_id;//订单id
                         info.address = _this.personInfo.address;
                         info.reason = _this.form.reason;
                         info.physicalType = _this.$store.state.theme.theme.physicalType;
@@ -174,7 +182,6 @@
                 if(this.conclusion){
                     this.form.reason = this.conclusion;
                 }
-                console.log(this.personInfo);
 
                 //获取组合项目  职业体检项目
                 this.getPortfolioProject();

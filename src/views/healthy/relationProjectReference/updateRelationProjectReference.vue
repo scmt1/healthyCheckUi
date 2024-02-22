@@ -25,7 +25,7 @@
             <FormItem label="健康参考值" prop="healthyValue">
                 <Row>
                     <Col span="9">
-                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.healthyMin" placeholder="请输入最小值"
+                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.minimumValue" placeholder="请输入最小值"
                                @input="healthyMinChange">
                             <span slot="prepend">最小值</span>
                         </Input>
@@ -36,7 +36,7 @@
                         </div>
                     </Col>
                     <Col span="9">
-                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.healthyMax" placeholder="请输入最大值"
+                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.maximumValue" placeholder="请输入最大值"
                                @input="healthyMaxChange">
                             <span slot="prepend">最大值</span>
                         </Input>
@@ -55,7 +55,7 @@
             <FormItem label="职业参考值" prop="occupationValue">
                 <Row>
                     <Col span="9">
-                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.occupationMin" placeholder="请输入最小值"
+                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.minimumValue" placeholder="请输入最小值"
                                @input="occupationMinChange">
                             <span slot="prepend">最小值</span>
                         </Input>
@@ -66,7 +66,7 @@
                         </div>
                     </Col>
                     <Col span="9">
-                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.occupationMax" placeholder="请输入最大值"
+                        <Input v-bind:disabled="disabled" type="number" v-model="relationProjectReferenceForm.maximumValue" placeholder="请输入最大值"
                                @input="occupationMaxChange">
                             <span slot="prepend">最大值</span>
                         </Input>
@@ -108,6 +108,9 @@ export default {
         },
         modalTitle: {
             type: String
+        },
+        selectRow: {
+           type: Object
         }
     },
     data() {
@@ -122,10 +125,9 @@ export default {
                 maxAge: 100,
                 healthyValue: '',
                 occupationValue: '',
-                healthyMin: null,
-                healthyMax: null,
-                occupationMin: null,
-                occupationMax: null
+                maximumValue:0,
+                minimumValue:0,
+                departmentId:"",
             },
             relationProjectReferenceFormRule: {
                 allowSex: [
@@ -161,29 +163,29 @@ export default {
     },
     methods: {
         healthyMinChange(e) {
-            if (e && this.relationProjectReferenceForm.healthyMax) {
-                this.relationProjectReferenceForm.healthyValue = e + "-" + this.relationProjectReferenceForm.healthyMax;
+            if (e && this.relationProjectReferenceForm.maximumValue) {
+                this.relationProjectReferenceForm.healthyValue = e + "-" + this.relationProjectReferenceForm.maximumValue;
             }else {
                 this.relationProjectReferenceForm.healthyValue = null;
             }
         },
         healthyMaxChange(e) {
-            if (e && this.relationProjectReferenceForm.healthyMin) {
-                this.relationProjectReferenceForm.healthyValue = this.relationProjectReferenceForm.healthyMin + "-" + e;
+            if (e && this.relationProjectReferenceForm.minimumValue) {
+                this.relationProjectReferenceForm.healthyValue = this.relationProjectReferenceForm.minimumValue + "-" + e;
             }else {
                 this.relationProjectReferenceForm.healthyValue = null;
             }
         },
         occupationMinChange(e) {
-            if (e && this.relationProjectReferenceForm.occupationMax) {
-                this.relationProjectReferenceForm.occupationValue = e + "-" + this.relationProjectReferenceForm.occupationMax;
+            if (e && this.relationProjectReferenceForm.maximumValue) {
+                this.relationProjectReferenceForm.occupationValue = e + "-" + this.relationProjectReferenceForm.maximumValue;
             }else {
                 this.relationProjectReferenceForm.occupationValue = null;
             }
         },
         occupationMaxChange(e) {
-            if (e && this.relationProjectReferenceForm.occupationMin) {
-                this.relationProjectReferenceForm.occupationValue = this.relationProjectReferenceForm.occupationMin + "-" + e;
+            if (e && this.relationProjectReferenceForm.minimumValue) {
+                this.relationProjectReferenceForm.occupationValue = this.relationProjectReferenceForm.minimumValue + "-" + e;
             }else {
                 this.relationProjectReferenceForm.occupationValue = null;
             }
@@ -191,11 +193,11 @@ export default {
         handelSubmit() {
             this.$refs['relationProjectReferenceForm'].validate((valid) => {
                 if (valid) {
-                    if(Number(this.relationProjectReferenceForm.healthyMax) < Number(this.relationProjectReferenceForm.healthyMin)) {
+                    if(Number(this.relationProjectReferenceForm.maximumValue) < Number(this.relationProjectReferenceForm.minimumValue)) {
                         this.$Message.error("健康参考值最大值不能比最小值小");
                         return false;
                     }
-                    if(Number(this.relationProjectReferenceForm.occupationMax) < Number(this.relationProjectReferenceForm.occupationMin)) {
+                    if(Number(this.relationProjectReferenceForm.maximumValue) < Number(this.relationProjectReferenceForm.minimumValue)) {
                         this.$Message.error("职业参考值最大值不能比最小值小");
                         return false;
                     }
@@ -253,6 +255,9 @@ export default {
                 maxAge: 100,
                 healthyValue: '',
                 occupationValue: '',
+                maximumValue:0,
+                minimumValue:0,
+                departmentId:this.selectRow.departmentId,
             };
         },
     },
@@ -280,11 +285,7 @@ export default {
                     getRelationProjectReference({id: this.RelationProjectReferenceId}).then(res => {
                         if (res) {
                             if (res.code == 200) {
-                                this.relationProjectReferenceForm = res.data;
-                                this.relationProjectReferenceForm.healthyMin = this.relationProjectReferenceForm.healthyValue.split("-")[0];
-                                this.relationProjectReferenceForm.healthyMax = this.relationProjectReferenceForm.healthyValue.split("-")[1];
-                                this.relationProjectReferenceForm.occupationMin = this.relationProjectReferenceForm.occupationValue.split("-")[0];
-                                this.relationProjectReferenceForm.occupationMax = this.relationProjectReferenceForm.occupationValue.split("-")[1];
+                              this.relationProjectReferenceForm = res.data;
                             } else {
                                 this.$Message.error(res.msg);
                             }

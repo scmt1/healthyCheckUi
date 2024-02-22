@@ -62,6 +62,9 @@ export default {
     },
     modalTitle: {
       type: String
+    },
+    selectRow: {
+      type: Object
     }
   },
   data() {
@@ -77,6 +80,7 @@ export default {
         allowSex: '',
         minAge: 0,
         maxAge: 100,
+        departmentId:"",
       },
       relationProjectCriticalFormRule: this.getRelationProjectCriticalFormRule(),
       levelPriority: [],
@@ -143,6 +147,7 @@ export default {
         allowSex: '',
         minAge: 0,
         maxAge: 100,
+        departmentId:this.selectRow.departmentId
       };
     },
     getRelationProjectCriticalFormRule() {

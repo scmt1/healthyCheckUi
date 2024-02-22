@@ -44,7 +44,7 @@
             //获取样本条码
             generatorCode() {
                 this.spinShow = true;
-                getAllGeneratorBarcode({personId: this.personInfo.id, testNum: this.personInfo.test_num}).then(res => {
+                getAllGeneratorBarcode({personId: this.personInfo.id, testNum: this.personInfo.testNum??this.personInfo.test_num}).then(res => {
                     if (res.success) {
                         this.barcodeList = res.data;
                     }

@@ -6,7 +6,7 @@
     >
       <Col :style="leftSpan" v-if="expand">
         <Alert class="alert">人员列表</Alert>
-        <Card class="card">
+        <Card class="card" style="height: calc(100% - 43px)">
           <div style="overflow: hidden; height: 100%">
             <Row style="margin-bottom: 10px; display: flex">
               <RadioGroup
@@ -112,6 +112,7 @@
                 placeholder="请输入体检编号"
                 @on-clear="inputSearchChange('')"
                 @keypress.native.enter="inputSearchChange"
+                @on-change="inputSearchChange"
                 style="margin-bottom: 10px"
                 clearable
                 v-if="drop"
@@ -141,105 +142,107 @@
             <!--                        <Row style="justify-content: center;height: calc(100% - 140px);">-->
             <Row
               :style="{ height: 'calc(100% - ' + height1 + ')' }"
-              style="justify-content: center"
+              style="flex-direction: column; justify-content: space-between; align-items: center"
             >
-              <RadioGroup
-                class="radio-group"
-                v-model="isRadioChecked"
-                v-if="personData.length > 0"
-              >
-                <Row
-                  class="row-border"
-                  v-for="item in personData"
-                  :key="item.id"
-                  @click.native="radioChooseClick(item.id, item.physicalType)"
+              <div style="width: 100%;max-height: calc(100% - 24px)">
+                <RadioGroup
+                  class="radio-group"
+                  v-model="isRadioChecked"
+                  v-if="personData.length > 0"
                 >
-                  <Col :span="4" class="radio-group-radio">
-                    <Radio :label="item.id" :disabled="disRadio"></Radio>
-                  </Col>
-                  <Col :span="15" class="radio-group-content">
-                    <div
-                      style="
-                        display: inline-block;
-                        width: 80px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                      "
-                      :title="item.personName"
-                    >
-                      {{ item.personName }}
-                    </div>
-                    <div style="margin-right: 6px">{{ item.sex }}</div>
-                    <div style="padding: 0 8px 0 4px">{{ item.age }}</div>
-                  </Col>
-                  <Col :span="5">
-                    <Row :gutter="6">
-                      <Col :span="12">
-                        <div
-                          class="border-blue"
-                          v-if="
-                            item.physicalType &&
-                            item.physicalType.indexOf('职业') != -1
-                          "
-                        >
-                          职
-                        </div>
-                        <div
-                          class="border-green"
-                          v-if="
-                            item.physicalType &&
-                            item.physicalType.indexOf('健康') != -1
-                          "
-                        >
-                          健
-                        </div>
-                        <div
-                          class="border-yellow"
-                          v-if="
-                            item.physicalType &&
-                            item.physicalType.indexOf('从业') != -1
-                          "
-                        >
-                          从
-                        </div>
-                        <div
-                          class="border-purple"
-                          v-if="
-                            item.physicalType &&
-                            item.physicalType.indexOf('放射') != -1
-                          "
-                        >
-                          放
-                        </div>
-                      </Col>
-                      <Col :span="12">
-                        <div
-                          class="border-purple"
-                          v-if="
-                            item.sporadicPhysical && item.sporadicPhysical == 1
-                          "
-                        >
-                          零
-                        </div>
-                        <div class="border-purple" v-else>团</div>
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-              </RadioGroup>
+                  <Row
+                    class="row-border"
+                    v-for="item in personData"
+                    :key="item.id"
+                    @click.native="radioChooseClick(item.id, item.physicalType)"
+                  >
+                    <Col :span="4" class="radio-group-radio">
+                      <Radio :label="item.id" :disabled="disRadio"></Radio>
+                    </Col>
+                    <Col :span="15" class="radio-group-content">
+                      <div
+                        style="
+                          display: inline-block;
+                          width: 80px;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          white-space: nowrap;
+                        "
+                        :title="item.personName"
+                      >
+                        {{ item.personName }}
+                      </div>
+                      <div style="margin-right: 6px">{{ item.sex }}</div>
+                      <div style="padding: 0 8px 0 4px">{{ item.age }}</div>
+                    </Col>
+                    <Col :span="5">
+                      <Row :gutter="6">
+                        <Col :span="12">
+                          <div
+                            class="border-blue"
+                            v-if="
+                              item.physicalType &&
+                              item.physicalType.indexOf('职业') != -1
+                            "
+                          >
+                            职
+                          </div>
+                          <div
+                            class="border-green"
+                            v-if="
+                              item.physicalType &&
+                              item.physicalType.indexOf('健康') != -1
+                            "
+                          >
+                            健
+                          </div>
+                          <div
+                            class="border-yellow"
+                            v-if="
+                              item.physicalType &&
+                              item.physicalType.indexOf('从业') != -1
+                            "
+                          >
+                            从
+                          </div>
+                          <div
+                            class="border-purple"
+                            v-if="
+                              item.physicalType &&
+                              item.physicalType.indexOf('放射') != -1
+                            "
+                          >
+                            放
+                          </div>
+                        </Col>
+                        <Col :span="12">
+                          <div
+                            class="border-purple"
+                            v-if="
+                              item.sporadicPhysical && item.sporadicPhysical == 1
+                            "
+                          >
+                            零
+                          </div>
+                          <div class="border-purple" v-else>团</div>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                </RadioGroup>
 
-              <!--暂无数据-->
-              <no-data v-else></no-data>
+                <!--暂无数据-->
+                <no-data v-else></no-data>
 
-              <Spin fix v-if="checkPersonLoading">
-                <Icon
-                  type="ios-loading"
-                  size="18"
-                  class="demo-spin-icon-load"
-                ></Icon>
-                <div>加载中...</div>
-              </Spin>
+                <Spin fix v-if="checkPersonLoading">
+                  <Icon
+                    type="ios-loading"
+                    size="18"
+                    class="demo-spin-icon-load"
+                  ></Icon>
+                  <div>加载中...</div>
+                </Spin>
+              </div>
               <Page
                 v-if="personData.length > 0"
                 :current="groupPersonSearchForm.pageNumber"
@@ -325,9 +328,10 @@
               v-model="tabsValue"
               :hidden-footer="hiddenTabsFooter"
               :person-info="personInfo"
-              v-on:handleSearch="refreshCheckStatus"
+              v-on:handleSearch="handleInfoSearch"
               @tab-click="handleTabClick"
               :class="otherInfoClass"
+              :is-consultation="isConsultation"
             >
               <template slot="tabs">
                 <el-tab-pane
@@ -344,7 +348,7 @@
                         v-if="item.isFile == '是'"
                         :style="`height: ${
                           tableHeight - 3
-                        }px ;  overflow-y: auto`"
+                        }px;overflow-y: auto;`"
                       >
                         <Row
                           style="
@@ -360,8 +364,8 @@
                               height: 100%;
                               display: flex;
                               flex-direction: column;
-                              justify-content: center;
                               align-items: center;
+                              overflow-y: auto
                             "
                           >
                             <div style="width: 100%; flex-shrink: 0">
@@ -381,14 +385,7 @@
                                 movable: false,
                                 zIndex: 7000,
                               }"
-                              style="
-                                flex: 1;
-                                width: 100%;
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                overflow-y: auto;
-                              "
+                              class="pacsImgs"
                             >
                               <img
                                 v-for="(item, index) in pacsData"
@@ -397,8 +394,8 @@
                                 style="
                                   border: 1px dashed #ccc;
                                   margin-right: 20px;
-                                  width: 25vw;
-                                  height: 250px;
+                                  width: 80px;
+                                  height: 80px;
                                 "
                               />
                             </div>
@@ -572,6 +569,17 @@
                               margin-left: 18px;
                             "
                           >
+                            <Button
+                              :disabled="
+                                item.status == 1 || item.status == 2
+                                  ? false
+                                  : true
+                              "
+                              type="success"
+                              @click="handleSave(index)"
+                              :loading="saveLoading"
+                              >保存结果
+                            </Button>
                             <!--                                                    <Button :disabled="(item.status== 1 || item.status == 2)?false:true" type="primary"-->
                             <!--                                                            v-if="item.name.indexOf('肺功能') != -1" @click="initWebSocket">肺-->
                             <!--                                                    </Button>-->
@@ -622,17 +630,6 @@
                                                             @click="handleReCheck"
                                                             v-if="item.status == 1 || item.status == 2">复检
                                                     </Button>-->
-                            <Button
-                              :disabled="
-                                item.status == 1 || item.status == 2
-                                  ? false
-                                  : true
-                              "
-                              type="success"
-                              @click="handleSave(index)"
-                              :loading="saveLoading"
-                              >保存结果
-                            </Button>
                           </ButtonGroup>
                         </Col>
                       </Row>
@@ -647,7 +644,7 @@
         <!-- 其他组件 -->
         <drawer
           v-model="wordChooseShow"
-          :isSearchPositive="isUserOfficeTerm ? false : isSearchPositive"
+          :isSearchPositive="isSearchPositive"
           :modalTitle="title"
           @getSelectedWords="getSelectedWords"
           :type="type"
@@ -764,12 +761,16 @@ import {
 
 import PersonInfo from "./components/PersonInfo.vue";
 
+import { debounce as _debounce } from "lodash"
+
 const StatuColors = {
   todo: "transparent #aaa6a6 transparent transparent", //灰色
   doing: "transparent #f0d537 transparent transparent", //黄色
   done: "transparent #23c223 transparent transparent", //绿色
   danger: "transparent red transparent transparent", //红色
 };
+
+const SpecialTypes = ["职业体检", "放射体检", "从业体检"];
 
 export default {
   components: {
@@ -787,14 +788,13 @@ export default {
   data() {
     return {
       isInit: false,
-      isUserOfficeTerm: false, //是否使用术语
       updateTableAbnormalFieldName: "阳性", //修改诊台页面，明细表格异常字段名称（即是否阳性字段列，修改为是否异常或者其他的名称）
       isSearchPositive: true, //是否查询阳性结果
 
       dropDownContent: "展开",
       dropDownIcon: "ios-arrow-down",
       drop: false,
-      height1: "160px",
+      height1: "140px",
       WVr: 0,
       WVl: 0,
       GFA: 0,
@@ -821,7 +821,6 @@ export default {
       doctor: "",
       checkDoctor: "",
       checkDate: formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"),
-      checkFlag: false,
       date: "",
       datePickerShow: false,
       personInfo: {},
@@ -884,6 +883,8 @@ export default {
       showCollapsePanels: ["info"],
       tableHeight: 0,
       resizeObserver: null,
+      currentUser: null,
+      isWzChecked: false
     };
   },
   computed: {
@@ -893,6 +894,11 @@ export default {
 
     // 是否是问诊科
     isConsultation() {
+      //是复查就不要问诊
+      if(this.isReviewer){
+        this.isWzChecked = false;
+        return false;
+      }
       const roles = JSON.parse(localStorage.getItem("roles"));
 
       return Array.isArray(roles) ? roles.some((i) => "问诊科" === i) : false;
@@ -974,19 +980,13 @@ export default {
     },
     isRadioChecked: {
       handler(val) {
-        this.tabsArr = [];
-        this.indxArr = [];
+        this.resetPage();
         this.personHeight = 0;
         this.personWeight = 0;
         if (val) {
           this.disRadio = true;
           //加载单个人员信息
           this.getOnePersonData(val);
-        } else {
-          //清除当前表格中信息
-          this.personInfo = {};
-          this.tabsArr = [];
-          this.data = [];
         }
       },
       immediate: true,
@@ -1022,18 +1022,10 @@ export default {
       this.doctor = userInfo.nickname;
       this.officeId = userInfo.departmentId;
       this.dockerId = userInfo.id;
-      if (this.isConsultation) {
-        this.checkFlag = true;
-      } else {
-        this.checkFlag = false;
-      }
     }
   },
   mounted: function () {
-    if (this.$hospitalName && this.$hospitalName.isUserOfficeTerm) {
-      //是否使用术语
-      this.isUserOfficeTerm = this.$hospitalName.isUserOfficeTerm;
-    }
+    this.getUserInfo();
     if (this.$hospitalName && this.$hospitalName.updateTableAbnormalFieldName) {
       //修改诊台页面，明细表格异常字段名称（即是否阳性字段列，修改为是否异常或者其他的名称）
       this.updateTableAbnormalFieldName =
@@ -1074,6 +1066,17 @@ export default {
     this.getFocus();
   },
   methods: {
+    async getUserInfo() {
+      try {
+        const { success, data } = await this.$api.userInfo();
+
+        if (success) {
+          this.currentUser = data
+        }
+      } catch (error) {
+        this.$Message.error(error.message)
+      }
+    },
     observeCheckContent(target) {
       this.resizeObserver = new ResizeObserver((entries, observer) => {
         entries.forEach((i) => {
@@ -1094,11 +1097,11 @@ export default {
       if (this.drop) {
         this.dropDownContent = "展开";
         this.dropDownIcon = "ios-arrow-down";
-        this.height1 = "160px";
+        this.height1 = "140px";
       } else {
         this.dropDownContent = "收起";
         this.dropDownIcon = "ios-arrow-up";
-        this.height1 = "244px";
+        this.height1 = "224px";
       }
       this.drop = !this.drop;
     },
@@ -1129,6 +1132,7 @@ export default {
     },
     //危机值
     handleCrisisData(item) {
+        if (!item.departResult.diagnoseSum || item.officeId == "186"){
       let diagnoseTipNow = "";
       //展示加权值到小结
       if (item && item.name && item.name.indexOf("纯音") > -1) {
@@ -1436,7 +1440,7 @@ export default {
                             }
                         }*/
         }
-      } else if (!item.departResult.diagnoseSum || temp.length == 0) {
+      } else if ( !item.departResult.diagnoseSum || temp.length == 0) {
         if (
           tab.name &&
           (tab.name.indexOf("电测") > -1 || tab.name.indexOf("纯音") > -1)
@@ -1456,6 +1460,7 @@ export default {
           }
         }
       }
+        }
     },
     //体检小结变化
     diagnoseSumChange(item) {
@@ -1466,7 +1471,10 @@ export default {
       //若明细项为空则自动将小结填充过去
       if (item.isFile == "是") {
         this.data.forEach((i) => {
+          if (i.departItemResults &&(i.officeId==204||i.officeId==194)){
           if (i.departItemResults && !i.departItemResults.result) {
+            i.departItemResults.result = item.departResult.diagnoseSum;
+          }} else {
             i.departItemResults.result = item.departResult.diagnoseSum;
           }
         });
@@ -1797,10 +1805,8 @@ export default {
       this.groupPersonSearchForm.pageNumber = 1;
       if (!e) {
         this.isReviewer = false;
-        this.checkFlag = true;
       } else {
         this.isReviewer = true;
-        this.checkFlag = false;
       }
       this.getPersonByOfficeId();
     },
@@ -1889,9 +1895,15 @@ export default {
         if (!tab.departResult) {
           tab.departResult.checkDoc = this.doctor;
         }
-        this.personInfo.pacsData = this.pacsData;
-        this.personInfo.groupItems = tab;
-        this.personInfo.baseProject = this.data;
+        const viewData = {
+          pacsData: this.pacsData,
+          groupItems: tab,
+          baseProject: this.data,
+        }
+
+        Object.entries(viewData).forEach(([k, value]) => {
+          this.$set(this.personInfo, k, value)
+        })
       }
     },
     //row换颜色
@@ -1915,6 +1927,15 @@ export default {
       this.title = "常用术语";
       this.type = type;
       this.officeId = item.officeId;
+
+      if (["DR室", "心电图", "彩超室"].some(i => item?.officeName === i)) {
+        this.isSearchPositive = false;
+      } else if (this.$hospitalName && this.$hospitalName.isUserOfficeTerm) {
+        //是否使用术语
+        this.isSearchPositive = !this.$hospitalName.isUserOfficeTerm;
+      } else {
+        this.isSearchPositive = true;
+      }
     },
     //获取专业术语回调
     getSelectedWords(word, cType) {
@@ -1961,13 +1982,14 @@ export default {
     },
     // officeId 查询人员
     getPersonByOfficeId() {
-      if (this.checkFlag) {
+      if (
+        this.isConsultation &&
+        SpecialTypes.some((t) => this.physicalType === t)
+      ) {
         //是问诊科
         if (this.isCheck == 1) {
-          this.groupPersonSearchForm.isWzCheck = 1;
           this.groupPersonSearchForm.isPass = null;
         } else {
-          this.groupPersonSearchForm.isWzCheck = 0;
           this.groupPersonSearchForm.isPass = 2;
         }
         this.groupPersonSearchForm.isCheck = this.isCheck;
@@ -1980,28 +2002,10 @@ export default {
           this.groupPersonSearchForm.isCheck = 0;
           this.groupPersonSearchForm.isPass = 2;
         }
-        this.groupPersonSearchForm.isWzCheck = null;
       }
+
       this.checkPersonLoading = true;
       this.groupPersonSearchForm.physicalType = this.physicalType;
-      let searchForm = JSON.parse(JSON.stringify(this.groupPersonSearchForm));
-
-      if (searchForm.startDate) {
-        searchForm.startDate = formatDate(
-          searchForm.startDate,
-          "yyyy-MM-dd HH:mm:ss"
-        );
-      }
-      if (searchForm.endDate) {
-        searchForm.endDate = formatDate(
-          searchForm.endDate,
-          "yyyy-MM-dd HH:mm:ss"
-        );
-        searchForm.endDate = searchForm.endDate.replace(
-          " 00:00:00",
-          " 23:59:59"
-        );
-      }
       //输入了就不带时间
       if (
         (this.groupPersonSearchForm.keyword &&
@@ -2017,7 +2021,18 @@ export default {
         this.groupPersonSearchForm.endDate = null;
         this.date = ""; //取消时间筛选
       }
-      searchForm = JSON.parse(JSON.stringify(this.groupPersonSearchForm));
+
+      const searchForm = JSON.parse(JSON.stringify(this.groupPersonSearchForm));
+
+      Object.assign(searchForm, {
+        // 是否为问诊科
+        isWzCheck:
+          this.isConsultation &&
+          SpecialTypes.some((t) => this.physicalType === t)
+            ? this.isCheck
+            : null,
+      });
+
       if (searchForm.startDate) {
         searchForm.startDate = formatDate(
           searchForm.startDate,
@@ -2039,7 +2054,7 @@ export default {
           searchForm.startDate == null ||
           searchForm.startDate.trim().length == 0
         ) {
-          searchForm.startDate = "0000-00-00 00:00:00";
+          searchForm.startDate = "1971-01-01 00:00:00";
         }
         if (
           searchForm.endDate == null ||
@@ -2049,7 +2064,7 @@ export default {
           searchForm.endDate = endTime + " 23:59:59";
         }
       }
-      if (this.isReviewer || !this.checkFlag) {
+      if (this.isReviewer) {
         getPersonReviewerByOfficeId(searchForm)
           .then((res) => {
             if (res.success) {
@@ -2118,11 +2133,34 @@ export default {
       this.isRadioChecked = id;
       this.personPhysicalType = physicalType;
     },
+    generateWzCheckDoctor() {
+      if (!this.personInfo) return;
+      const { wzCheckDoctorId } = this.personInfo;
+      const { nickname, id, autographFile, autograph } = this.currentUser ?? {};
+
+      if (!wzCheckDoctorId) {
+        this.isWzChecked = false;
+        Object.assign(this.personInfo, {
+          wzCheckAutograph: autographFile?.indexOf("/dcm") > -1
+            ? autographFile
+            : "data:image/png;base64," + autograph,
+          wzCheckDoctor: nickname,
+          wzCheckDoctorId: id,
+        })
+      } else {
+        this.isWzChecked = true
+      }
+    },
     //获取一条记录
     getOnePersonData(id) {
       //如果是问诊科
       this.personInfoLoading = true;
-      if (this.checkFlag) {
+      let isConsultation = this.isConsultation;
+      //复查默认不走问诊
+      if(this.isReviewer){
+        isConsultation = false;
+      }
+      if (isConsultation) {
         if (this.personPhysicalType == "从业体检") {
           this.showOtherInfo = false;
           getTGroupPersonInfoById({ id: id })
@@ -2130,17 +2168,11 @@ export default {
               if (res.success) {
                 if (res.data) {
                   //人信息
-                  this.personInfo = res.data;
+                  this.personInfo = this.$utils.format.underlineToCamel(
+                    res.data
+                  );
                   this.getItemDataByGroupId();
-                  //未保存时的问诊医生
-                  if (!this.personInfo.wzCheckAutograph) {
-                    if (this.checkDoctor) {
-                      let kDoctor = this.checkDoctor.split("base64,");
-                      if (kDoctor && kDoctor.length > 0) {
-                        this.personInfo.wzCheckAutograph = kDoctor[1]; //问诊科签名
-                      }
-                    }
-                  }
+                  this.generateWzCheckDoctor();
                   this.showOtherInfo = true;
                 } else {
                   //清除当前表格中信息
@@ -2161,17 +2193,11 @@ export default {
               if (res.success) {
                 if (res.data) {
                   //人信息
-                  this.personInfo = res.data;
+                  this.personInfo = this.$utils.format.underlineToCamel(
+                    res.data
+                  );
+                  this.generateWzCheckDoctor();
                   this.getItemDataByGroupId();
-                  //未保存时的问诊医生
-                  if (!this.personInfo.wzCheckAutograph) {
-                    if (this.checkDoctor) {
-                      let kDoctor = this.checkDoctor.split("base64,");
-                      if (kDoctor && kDoctor.length > 0) {
-                        this.personInfo.wzCheckAutograph = kDoctor[1]; //问诊科签名
-                      }
-                    }
-                  }
                   this.showOtherInfo = true;
                 } else {
                   //清除当前表格中信息
@@ -2193,7 +2219,10 @@ export default {
               if (res.success) {
                 if (res.data) {
                   //人信息
-                  this.personInfo = res.data;
+                  this.personInfo = this.$utils.format.underlineToCamel(
+                    res.data
+                  );
+                  this.generateWzCheckDoctor();
                   //根据分组id，加载分组项目
                   this.getItemDataByGroupId();
                 } else {
@@ -2214,7 +2243,10 @@ export default {
               if (res.success) {
                 if (res.data) {
                   //人信息
-                  this.personInfo = res.data;
+                  this.personInfo = this.$utils.format.underlineToCamel(
+                    res.data
+                  );
+                  this.generateWzCheckDoctor();
                   //根据分组id，加载分组项目
                   this.getItemDataByGroupId();
                 } else {
@@ -2264,21 +2296,21 @@ export default {
               res.data.forEach((i, indx) => {
                 _this.groupItemIdList.push(i.id);
                 if (!i.departResult) {
+                  const { nickname, id, autographFile, autograph } = this.currentUser ?? {};
                   i.departResult = {
                     checkDate: _this.checkDate,
-                    checkDoc: "",
-                    createId: this.dockerId,
-                    personId: this.personInfo.id,
+                    checkDoc: nickname,
+                    createId: id,
+                    checkSignPath: autographFile?.indexOf("/dcm") > -1
+                      ? autographFile
+                      : "data:image/png;base64," + autograph,
+                      personId: this.personInfo.id,
                     groupItemId: i.id,
                     groupItemName: i.name,
                     diagnoseTip: "",
                     diagnoseSum: "",
                   };
                 }
-                //初始化选中
-                // if (indx === 0) {
-                //   this.tabsValue = i.id;
-                // }
 
                 if (
                   Object.prototype.toString.call(i.departResult) ==
@@ -2310,17 +2342,42 @@ export default {
                     createId: this.dockerId,
                   };
                 }
+
+                if (this.$hospitalName.generateDRConclusion && `${i.officeName}`.includes("DR室")) {
+                  Object.assign(i.departResult, {
+                    diagnoseTip: i.departResult.diagnoseTip || "双侧胸廓对称。双肺透光度基本一致，双肺肺纹理分布清晰自然，肺野内未见渗出及占位等异常影像。两肺门结构清晰;心影形态、大小未见明显异常。双隔面光滑，双侧肋隔角锐利。双侧肋骨、胸骨、胸椎未见异常影像。",
+                    diagnoseSum: i.departResult.diagnoseSum || "胸部未见异常影像"
+                  })
+                }
+                if (_this.$hospitalName.radioGraph && _this.$hospitalName.radioGraph.length > 0) {
+                  let radioGraph = _this.$hospitalName.radioGraph;
+                  let projectName = radioGraph.filter(aa => aa.projectName.includes(i.name));
+                  if (projectName != null && projectName.length > 0) {
+                    Object.assign(i.departResult, {
+                      diagnoseTip:  i.departResult.diagnoseTip|| projectName[0].diagnoseTip,
+                      diagnoseSum:  i.departResult.diagnoseSum|| projectName[0].diagnoseSum
+                    })
+                  } else {
+                    projectName = radioGraph.filter(aa => aa.officeId == i.officeId);
+                    if (projectName != null && projectName.length > 0){
+                      Object.assign(i.departResult, {
+                        diagnoseTip:  i.departResult.diagnoseTip|| projectName[0].diagnoseTip,
+                        diagnoseSum:  i.departResult.diagnoseSum|| projectName[0].diagnoseSum
+                      })
+                    }
+                  }
+                }
               });
 
               //分组项目
               _this.tabsArr = res.data;
-              if (this.typeStatus){
-                _this.tabsValue = _this.tabsArr[0]?.id;
-              }else {
-                _this.tabsValue = _this.isConsultation
-                        ? ""
-                        : _this.tabsArr[0]?.id;
-              }
+
+              _this.tabsValue = SpecialTypes.some(
+                (t) => _this.personInfo?.physicalType === t
+              ) && _this.isConsultation
+                ? ""
+                : _this.tabsArr[0]?.id;
+              this.getBaseProjectResult();
             }
           }
         })
@@ -2538,7 +2595,7 @@ export default {
                 break;
               // 基本信息
               default:
-                oSpan.style.borderColor = this.personInfo.wzCheckDoctorId
+                oSpan.style.borderColor = this.isWzChecked
                   ? StatuColors.done
                   : StatuColors.doing;
                 break;
@@ -2603,7 +2660,18 @@ export default {
         this.$Message.info("当前人员已总检，如要修改，请先退回到待总检状态！");
         return;
       }
-
+      //效验项目检查时间不能大于登记时间
+      let checkData = this.tabsArr.find((i) => i.id == this.tabsValue);
+      if (checkData && checkData.departResult.checkDate && this.personInfo.registDate){
+        let data = formatDate(
+            checkData.departResult.checkDate,
+            "yyyy-MM-dd HH:mm:ss"
+        );
+        if (Date.parse(data) < Date.parse(this.personInfo.registDate)){
+          this.$Message.error('项目检查时间不能小于登记时间！！！');
+          return;
+        }
+      }
       //tab 当前选中组合项目
       let tab = this.tabsArr.find((i) => i.id == this.tabsValue);
       //验证电测听是否同步到数据
@@ -2764,6 +2832,18 @@ export default {
         if (i.departItemResults) {
           i.departItemResults.orderGroupItemId = this.tabsValue;
           i.departItemResults.diagnoseSum = tab.departResult.diagnoseSum.trim();
+        }
+        if (i.departItemResults && i.departItemResults.scope && i.departItemResults.scope.indexOf("-")>-1){
+          if (i.departItemResults.scope.indexOf("--") > -1){
+            i.departItemResults.scope.replaceAll("--","-");
+          }
+          if (i.departItemResults.scope.split("-").length > 2){
+            this.$set(i.departItemResults, 'minimumValue', "-" + i.departItemResults.scope.split ("-")[1]);
+            this.$set(i.departItemResults, 'maximumValue', i.departItemResults.scope.split ("-")[2]);
+          }else {
+            this.$set(i.departItemResults, 'minimumValue', i.departItemResults.scope.split ("-")[0]);
+            this.$set(i.departItemResults, 'maximumValue', i.departItemResults.scope.split ("-")[1]);
+          }
         }
       });
 
@@ -3387,7 +3467,7 @@ export default {
       });
     },
     //获取基础项目结果
-    getBaseProjectResult() {
+    getBaseProjectResult: _debounce(function() {
       let tab = this.tabsArr.find((i) => this.tabsValue === i.id);
 
       if (!tab) return;
@@ -3401,7 +3481,7 @@ export default {
       } else {
         this.getSelectedBaseItemByItemId_front(tab.id, "", "", tab.isFile);
       }
-    },
+    }, 500, {}),
     //丙氨酸基转移酶(转氨酶)异常 额外添加检查项目 组合项目id，分组id 戊肝Igm(转氨酶异常的增查) 甲肝Igm(转氨酶异常的增查)
     addBaseProject(orderGroupItemId, groupOrderId) {
       let flag1 = this.data.some((i) => {
@@ -3854,7 +3934,8 @@ export default {
               if (
                 params.row.departItemResults &&
                 (params.row.departItemResults.result ||
-                  (params.row.departItemResults.result!=undefined && params.row.departItemResults.result!=null &&
+                  (params.row.departItemResults.result != undefined &&
+                    params.row.departItemResults.result != null &&
                     params.row.departItemResults.result == 0))
               ) {
                 result = Number(params.row.departItemResults.result);
@@ -4632,7 +4713,8 @@ export default {
               let result = "";
               if (
                 params.row.departItemResults.result ||
-                (params.row.departItemResults.result!=undefined && params.row.departItemResults.result!=null &&
+                (params.row.departItemResults.result != undefined &&
+                  params.row.departItemResults.result != null &&
                   params.row.departItemResults.result == 0)
               ) {
                 result = Number(params.row.departItemResults.result);
@@ -4751,7 +4833,9 @@ export default {
                       let tab = this.tabsArr.find(
                         (i) => i.id == this.tabsValue
                       );
-                      /*this.$set(tab.departResult, "diagnoseTip", v);*/
+                    /*  if (tab!=null && tab.name.indexOf("心电图")>-1){
+                        this.$set(tab.departResult, "diagnoseTip", v);
+                      };*/
 
                       let ret = this.setResult(params.row.criticals, v);
                       if (ret.flag == "-") {
@@ -5088,7 +5172,8 @@ export default {
               let result = "";
               if (
                 params.row.departItemResults.result ||
-                (params.row.departItemResults.result!=undefined && params.row.departItemResults.result!=null &&
+                (params.row.departItemResults.result != undefined &&
+                  params.row.departItemResults.result != null &&
                   params.row.departItemResults.result == 0)
               ) {
                 result = Number(params.row.departItemResults.result);
@@ -5948,11 +6033,17 @@ export default {
           if (direction && direction[0].innerHTML == "Right") {
             try {
               let size = countrys[i].getElementsByTagName("IntensityUT");
+              let length = countrys[i].getElementsByTagName("IntensityMT");
+              let status = countrys[i].getElementsByTagName("StatusMT");
               let number = countrys[i].getElementsByTagName("Frequency");
-              for (var j = 0; j < size.length; j++) {
+              for (let j = 0; j < size.length; j++) {
+                let index = size[j].innerHTML;
+                if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                  index = length[j].innerHTML
+                }
                 let value = {
                   revisionValue: 0,
-                  measuredValue: Number(size[j].innerHTML),
+                  measuredValue: Number(index),
                   frequency: number[j].innerHTML,
                 };
                 right.value.push(value);
@@ -5961,11 +6052,17 @@ export default {
           } else {
             try {
               let size = countrys[i].getElementsByTagName("IntensityUT");
+              let length = countrys[i].getElementsByTagName("IntensityMT");
+              let status = countrys[i].getElementsByTagName("StatusMT");
               let number = countrys[i].getElementsByTagName("Frequency");
-              for (var j = 0; j < size.length; j++) {
+              for (let j = 0; j < size.length; j++) {
+                let index = size[j].innerHTML;
+                if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                  index = length[j].innerHTML
+                }
                 let value = {
                   revisionValue: 0,
-                  measuredValue: Number(size[j].innerHTML),
+                  measuredValue: Number(index),
                   frequency: number[j].innerHTML,
                 };
                 left.value.push(value);
@@ -5976,11 +6073,17 @@ export default {
           if (direction && direction[0].innerHTML == "Right") {
             try {
               let size = countrys[i].getElementsByTagName("IntensityUT");
+              let length = countrys[i].getElementsByTagName("IntensityMT");
+              let status = countrys[i].getElementsByTagName("StatusMT");
               let number = countrys[i].getElementsByTagName("Frequency");
-              for (var j = 0; j < size.length; j++) {
+              for (let j = 0; j < size.length; j++) {
+                let index = size[j].innerHTML;
+                if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                  index = length[j].innerHTML
+                }
                 let value = {
                   revisionValue: 0,
-                  measuredValue: Number(size[j].innerHTML),
+                  measuredValue: Number(index),
                   frequency: number[j].innerHTML,
                 };
                 gright.value.push(value);
@@ -5989,11 +6092,17 @@ export default {
           } else {
             try {
               let size = countrys[i].getElementsByTagName("IntensityUT");
+              let length = countrys[i].getElementsByTagName("IntensityMT");
+              let status = countrys[i].getElementsByTagName("StatusMT");
               let number = countrys[i].getElementsByTagName("Frequency");
-              for (var j = 0; j < size.length; j++) {
+              for (let j = 0; j < size.length; j++) {
+                let index = size[j].innerHTML;
+                if (size[j].innerHTML <= -100 && status[j].innerHTML == "Heard"){
+                  index = length[j].innerHTML
+                }
                 let value = {
                   revisionValue: 0,
-                  measuredValue: Number(size[j].innerHTML),
+                  measuredValue: Number(index),
                   frequency: number[j].innerHTML,
                 };
                 gleft.value.push(value);
@@ -6170,12 +6279,13 @@ export default {
                 if ("是" == tab.isFile) {
                   isRync = true;
                   parse = parse.filter((item) => item.type == "image");
-                  this.pacsData = [];
-                  parse.forEach((item) => {
-                    if (this.pacsData.length < 2) {
-                      this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
-                    }
-                  });
+                  // this.pacsData = [];
+                  // parse.forEach((item) => {
+                  //   if (this.pacsData.length < 2) {
+                  //     this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
+                  //   }
+                  // });
+                  this.pacsData = parse.map(i => `${ i.imgPath.indexOf("tempfile") > -1 ? util.nginxUrl : "" }/${ i.imgPath }`)
                 } else {
                   if (flagTC) {
                     //麦力听数据解析
@@ -6529,6 +6639,7 @@ export default {
                               parse[i].value.forEach((j) => {
                                 if (i > 2) {
                                   if ("gl" + j.frequency == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result =
                                       Number(j.measuredValue) - Number(r);
@@ -6608,6 +6719,7 @@ export default {
                                   }
                                 } else {
                                   if ("l" + j.frequency == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result =
                                       Number(j.measuredValue) - Number(r);
@@ -6691,6 +6803,7 @@ export default {
                               parse[i].value.forEach((j) => {
                                 if (i > 2) {
                                   if ("gr" + j.frequency == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result =
                                       Number(j.measuredValue) - Number(r);
@@ -6771,6 +6884,7 @@ export default {
                                   }
                                 } else {
                                   if ("r" + j.frequency == item.relationCode) {
+                                    isRync = true;
                                     let r = this.tcData(item);
                                     item.departItemResults.result =
                                       Number(j.measuredValue) - Number(r);
@@ -7112,27 +7226,25 @@ export default {
                       }
                     });
                   }
+                  if (parse && parse.length > 0 && isRync) {
+                    this.$Message.success("同步成功！");
+                  } else {
+                    this.$Message.error("同步失败！");
+                  }
                   if (
                     tab.portfolioProjectId == "1479" &&
                     parse &&
                     parse.length > 0
                   ) {
                     //肺功能测试曲线
-                    parse = parse.filter(
-                      (item) => item.type && (item.type == "image"||item.type == "item")
+                    const filteredParse = parse.filter(
+                      (item) =>
+                        item.type &&
+                        (item.type == "image" )
                     );
-                    _this.pacsData = [];
-                    parse.forEach((item) => {
-                      if (_this.pacsData.length <= 2) {
-                        _this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
-                      }
-                    });
+                    _this.pacsData = filteredParse.slice(0,2).map(i => `${util.nginxUrl}/${i.imgPath}`);
                   }
-                  if (parse && parse.length > 0 && isRync) {
-                    this.$Message.success("同步成功！");
-                  } else {
-                    this.$Message.error("同步失败！");
-                  }
+
 
                   if (tab.officeId == "202") {
                     this.calculateAverage();
@@ -7221,19 +7333,21 @@ export default {
                 }
                 if ("是" == tab.isFile) {
                   parse = parse.filter((item) => item.type == "image");
-                  this.pacsData = [];
-                  parse.forEach((item) => {
-                    if (this.pacsData.length < 2) {
-                      if (
-                        item.imgPath &&
-                        item.imgPath.indexOf("tempfile") > -1
-                      ) {
-                        this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
-                      } else {
-                        this.pacsData.push("/" + item.imgPath);
-                      }
-                    }
-                  });
+                  // this.pacsData = [];
+                  // parse.forEach((item) => {
+                  //   if (this.pacsData.length < 2) {
+                  //     if (
+                  //       item.imgPath &&
+                  //       item.imgPath.indexOf("tempfile") > -1
+                  //     ) {
+                  //       this.pacsData.push(util.nginxUrl + "/" + item.imgPath);
+                  //     } else {
+                  //       this.pacsData.push("/" + item.imgPath);
+                  //     }
+                  //   }i.imgPath.indexOf("tempfile") > -1
+                  // });
+                  this.pacsData = parse.map(i => `${ i.imgPath.indexOf("tempfile") > -1 ? util.nginxUrl : "" }/${ i.imgPath }`)
+
                   if (this.pacsData && this.pacsData.length > 0) {
                     this.$Message.success("同步成功！");
                   }
@@ -7813,11 +7927,11 @@ export default {
           let proTypeItem = proType["职业体检"];
           if (
             this.personInfo &&
-            this.personInfo.hazard_factors_text &&
-            this.personInfo.work_state_text
+            this.personInfo.hazardFactorsText &&
+            this.personInfo.workStateText
           ) {
-            let text = this.personInfo.hazard_factors_text.split("|");
-            let work = this.personInfo.work_state_text;
+            let text = this.personInfo.hazardFactorsText.split("|");
+            let work = this.personInfo.workStateText;
             if (text.length > 0) {
               for (let i = 0; i < text.length; i++) {
                 let factors = text[i];
@@ -7825,8 +7939,8 @@ export default {
                   break;
                 }
                 let items = null;
-                if (proTypeItem[factors] && proTypeItem[factors][work]) {
-                  items = proTypeItem[factors][work];
+                if (proTypeItem[factors] && proTypeItem[factors][work.trim()]) {
+                  items = proTypeItem[factors][work.trim()];
                 } else if (
                   factors.indexOf("粉尘") > -1 ||
                   factors.indexOf("烟尘") > -1
@@ -7839,9 +7953,9 @@ export default {
                     if (
                       proTypeItem["其他无机粉尘"].items.indexOf(factors) > -1
                     ) {
-                      items = proTypeItem["其他无机粉尘"][work];
+                      items = proTypeItem["其他无机粉尘"][work.trim()];
                     } else {
-                      items = proTypeItem["有机粉尘"][work];
+                      items = proTypeItem["有机粉尘"][work.trim()];
                     }
                   }
                 }
@@ -7915,7 +8029,7 @@ export default {
 
           if (res?.success) {
             if (
-              this.personInfo.wzCheckDoctorId &&
+              (!this.isConsultation || this.personInfo.wzCheckDoctorId) &&
               res.data === this.groupItemIdList.length
             ) {
               this.getPersonByOfficeId();
@@ -7928,6 +8042,19 @@ export default {
         }
       }
     },
+
+    async handleInfoSearch() {
+      await this.getOnePersonData(this.isRadioChecked);
+      this.refreshCheckStatus();
+    },
+
+
+    resetPage() {
+      this.personInfo = {};
+      this.tabsArr = [];
+      this.indxArr = [];
+      this.data = [];
+    }
   },
 };
 </script>
@@ -8371,6 +8498,15 @@ export default {
 
   .ivu-spin-fix .ivu-spin-main {
     top: 30%;
+  }
+
+  .pacsImgs {
+    flex: 1;
+    width: 100%;
+    padding: 0 10%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 </style>

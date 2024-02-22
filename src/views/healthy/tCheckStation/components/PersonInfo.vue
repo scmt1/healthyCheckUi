@@ -124,7 +124,7 @@ export default {
 
     // 展示项
     infoCols() {
-      const { age, physicalType, oldGroupId } = this.info;
+      const { age, physicalType, oldGroupId ,sporadicPhysical} = this.info;
       return [
         {
           label: "体检编号",
@@ -167,7 +167,7 @@ export default {
         },
         {
           label: "订单类型",
-          content: oldGroupId ? "团单" : "个单",
+          content: sporadicPhysical  == 0? "团单" : "个单",
           visiable: physicalType === "健康体检",
         },
         {

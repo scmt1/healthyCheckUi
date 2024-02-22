@@ -36,7 +36,7 @@
       </div>
     </Card>
     <updateRelationProjectReference v-model="updateShow" :RelationProjectReferenceId="RelationProjectReferenceId" :modalTitle="title"
-                                    :baseProjectId="TBaseProjectId" v-on:handleSearch="getDataList"></updateRelationProjectReference>
+                                    :baseProjectId="TBaseProjectId" v-on:handleSearch="getDataList" :selectRow="selectRow"></updateRelationProjectReference>
   </div>
 </template>
 <script>
@@ -48,6 +48,9 @@ export default {
     TBaseProjectId: {
       type: String
     },
+    selectRow: {
+      type: Object
+    }
   },
   components: {
     updateRelationProjectReference
