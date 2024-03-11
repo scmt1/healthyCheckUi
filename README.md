@@ -27,8 +27,8 @@
 
 healthyCheck是一套适合互联网企业使用的开源体检管理系统，可直接用于健康体检、职业体检、从业体检，适合个体检中心使用，可以对接医院各个设备、LIS、PACS、HIS系统便于数据录入以及出具体检报告，本项目为前端工程，完整实现web界面、视觉交互
 
-后端工程项目代码：https://gitee.com/scmt1/healthyCheck
-app工程项目代码：https://gitee.com/scmt1/healthy-check-app
+后端工程项目代码：https://github.com/scmt1/healthyCheck
+
 
 
 ## 🍎 项目特点
@@ -42,7 +42,7 @@ app工程项目代码：https://gitee.com/scmt1/healthy-check-app
 * 前后端分离架构，方便二次开发
 
 ## 🍟 项目体验
-- 健康体检管理系统：[https://223.87.166.240:9123](https://223.87.166.240:9123 "健康体检管理系统体验")
+- 健康体检管理系统：[https://223.87.166.240:9123](https://223.87.166.240:9123 "健康体检管理系统体验")（体检账号请加QQ群536624215联系管理员）
 
 ## 🥞 系统架构
 
