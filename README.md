@@ -1,11 +1,11 @@
 <p align="center">
-	<a href="https://223.87.166.240:9123"><img src="http://223.87.166.240:8014/logo.png"></a>
+	<a href="https://www.scmintu.com"><img src="vx_images/logo.png"></a>
 </p>
 <p align="center">
 	<strong>适合互联网企业使用的开源职业体检管理系统</strong>
 </p>
 <p align="center">
-	👉 <a href="https://www.scmintu.com/">https://www.scmintu.com/</a> 👈
+	👉 <a href="https://223.87.166.240:9123">https://www.scmintu.com</a> 👈
 </p>
 
 <p align="center">
@@ -27,8 +27,7 @@
 
 healthyCheck是一套适合互联网企业使用的开源体检管理系统，可直接用于健康体检、职业体检、从业体检，适合个体检中心使用，可以对接医院各个设备、LIS、PACS、HIS系统便于数据录入以及出具体检报告，本项目为前端工程，完整实现web界面、视觉交互
 
-后端工程项目代码：https://github.com/scmt1/healthyCheck
-
+后端工程项目代码：https://gitee.com/scmt1/healthyCheck
 
 
 ## 🍎 项目特点
@@ -151,6 +150,7 @@ healthyCheck
 ![035](vx_images/8.jpg )![036](vx_images/9.jpg )
 
 
+
 ## 开源版使用须知
 ***
 * 需标注"代码来源于四川民图科技开源项目"后即可免费自用运营
@@ -162,7 +162,7 @@ healthyCheck
 ## 商业合作
 ***
 *  如果你想使用功能更完善的体检系统，请联系电话：400-855-2332
-*  如果您想基于党体检系统进行定制开发，我们提供有偿定制服务支持！
+*  如果您想基于体检系统进行定制开发，我们提供有偿定制服务支持！
 *  其他合作模式不限，欢迎来撩！
 *  联系我们（商务请联系电话：400-855-2332）
 
