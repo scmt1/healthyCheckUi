@@ -40,8 +40,6 @@ healthyCheck是一套适合互联网企业使用的开源体检管理系统，�
 * 使用`spring security`实现权限管理
 * 前后端分离架构，方便二次开发
 
-## 🍟 项目体验
-- 健康体检管理系统：[https://tj.scmintu.com:9123](https://tj.scmintu.com:9123 "健康体检管理系统体验")（体检账号请加QQ群536624215联系管理员）
 
 ## 🥞 系统架构
 
@@ -176,7 +174,7 @@ healthyCheck
 * 业务合作：scmtkj@163.com
 * 公司主页：https://www.scmintu.com/
 ## 🥪 交流咨询群
-如果需要体验账号以及数据库请加QQ群（536624215）
+如果需要数据库请加QQ群（536624215）
 
 ![qq](vx_images/572785117230348.png)
 微信联系方式：微信号 wxid_1uhin30bp6xv12
